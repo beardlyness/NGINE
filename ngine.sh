@@ -19,8 +19,8 @@
 # description      :This script will make it super easy to setup a LEMP server.
 # author           :The Crypto World Foundation.
 # contributors     :beard
-# date             :03-22-2019
-# version          :0.0.1 Alpha
+# date             :03-23-2019
+# version          :0.0.2 Alpha
 # os               :Debian/Ubuntu
 # usage            :bash ngine.sh
 # notes            :If you have any problems feel free to email the maintainer: beard [AT] cryptoworld [DOT] is
@@ -67,13 +67,22 @@
         wget -O /etc/security/limits.conf https://raw.githubusercontent.com/beardlyness/NGINE/master/etc/security/limits.conf
       echo "Setting up background NGINX workers.."
         wget -O /etc/default/nginx https://raw.githubusercontent.com/beardlyness/NGINE/master/etc/default/nginx
+      echo "Setting up configuration file for NGINX.."
+        wget -O /etc/nginx/conf.d/nginx-website.conf https://raw.githubusercontent.com/beardlyness/NGINE/master/etc/conf.d/ssldev.conf
       echo "Setting up folders.."
         mkdir -p /etc/engine/ssl/live
         mkdir -p /var/www/html/pub/live
       echo "Restarting NGINX daemon"
         service nginx restart
-    }
 
+        read -r -p "Domain Name: (Leave {HTTPS:/// | HTTP://} out of the domain) " REPLY
+          if [[ "${REPLY,,}" ]]
+            then
+              echo "Changing 'server_name foobar' >> server_name '$REPLY' .."
+                sed -i 's/server_name foobar/server_name '$REPLY'/g' /etc/nginx/conf.d/nginx-website.conf
+              echo "Domain Name has been set to: '$REPLY' "
+          fi
+    }
 
   # Setting up different PHP Version branches to prep for install
     function php() {
@@ -82,6 +91,9 @@
       echo "deb https://packages.sury.org/php/ $flavor main" | tee /etc/apt/sources.list.d/php.list
     }
 
+    # Grabbing info on active machine.
+        flavor=`lsb_release -cs`
+        system=`lsb_release -i | grep "Distributor ID:" | sed 's/Distributor ID://g' | sed 's/["]//g' | awk '{print tolower($1)}'`
 
 #START
 
@@ -117,10 +129,6 @@
         echo -e "\033[34mInstalling dialog, Please Wait...\e[0m"
           apt-get install dialog
     fi
-
-  # Grabbing info on active machine.
-      flavor=`lsb_release -cs`
-      system=`lsb_release -i | grep "Distributor ID:" | sed 's/Distributor ID://g' | sed 's/["]//g' | awk '{print tolower($1)}'`
 
 # NGINX Arg main
 read -r -p "Do you want to setup NGINX as a Web Server? (Y/N) " REPLY
@@ -207,6 +215,7 @@ read -r -p "Do you want to install and setup PHP? (Y/N) " REPLY
             sed -i 's/listen.owner = www-data/listen.owner = nginx/g' /etc/php/5.6/fpm/pool.d/www.conf
             sed -i 's/listen.group = www-data/listen.group = nginx/g' /etc/php/5.6/fpm/pool.d/www.conf
             sed -i 's/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/g' /etc/php/5.6/fpm/php.ini
+            sed -i 's/phpx.x-fpm.sock/php5.6-fpm.sock/g' /etc/nginx/conf.d/nginx-website.conf
             service php5.6-fpm restart
             service php5.6-fpm status
             ps aux | grep -v root | grep php-fpm | cut -d\  -f1 | sort | uniq
@@ -219,6 +228,7 @@ read -r -p "Do you want to install and setup PHP? (Y/N) " REPLY
             sed -i 's/listen.owner = www-data/listen.owner = nginx/g' /etc/php/7.1/fpm/pool.d/www.conf
             sed -i 's/listen.group = www-data/listen.group = nginx/g' /etc/php/7.1/fpm/pool.d/www.conf
             sed -i 's/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/g' /etc/php/7.1/fpm/php.ini
+            sed -i 's/phpx.x-fpm.sock/php7.1-fpm.sock/g' /etc/nginx/conf.d/nginx-website.conf
             service php7.1-fpm restart
             service php7.1-fpm status
             ps aux | grep -v root | grep php-fpm | cut -d\  -f1 | sort | uniq
@@ -231,6 +241,7 @@ read -r -p "Do you want to install and setup PHP? (Y/N) " REPLY
             sed -i 's/listen.owner = www-data/listen.owner = nginx/g' /etc/php/7.2/fpm/pool.d/www.conf
             sed -i 's/listen.group = www-data/listen.group = nginx/g' /etc/php/7.2/fpm/pool.d/www.conf
             sed -i 's/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/g' /etc/php/7.2/fpm/php.ini
+            sed -i 's/phpx.x-fpm.sock/php7.2-fpm.sock/g' /etc/nginx/conf.d/nginx-website.conf
             service php7.2-fpm restart
             service php7.2-fpm status
             ps aux | grep -v root | grep php-fpm | cut -d\  -f1 | sort | uniq
@@ -243,6 +254,7 @@ read -r -p "Do you want to install and setup PHP? (Y/N) " REPLY
            sed -i 's/listen.owner = www-data/listen.owner = nginx/g' /etc/php/7.3/fpm/pool.d/www.conf
            sed -i 's/listen.group = www-data/listen.group = nginx/g' /etc/php/7.3/fpm/pool.d/www.conf
            sed -i 's/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/g' /etc/php/7.3/fpm/php.ini
+           sed -i 's/phpx.x-fpm.sock/php7.3-fpm.sock/g' /etc/nginx/conf.d/nginx-website.conf
            service php7.3-fpm restart
            service php7.3-fpm status
            ps aux | grep -v root | grep php-fpm | cut -d\  -f1 | sort | uniq
@@ -270,11 +282,22 @@ esac
                 apt-get install phpmyadmin
                 apt-get install libmcrypt-dev
                 ln -s /usr/share/phpmyadmin /var/www/html/pub/live
+
+                # Changes URL/phpmyadmin >> URL/Custom+String
+                read -r -p "Custom PHPMyAdmin URL String: " REPLY
+                  if [[ "${REPLY,,}" =~ ^[a-zA-Z0-9_.-]*$ ]]
+                    then
+                      echo "Changing /var/www/html/pub/live/phpmyadmin >> /var/www/html/pub/live/'$REPLY' .."
+                        mv /var/www/html/pub/live/phpmyadmin /var/www/html/pub/live/$REPLY
+                      echo "You can now access PHPMyAdmin via: https://yourdomain.com/$REPLY"
+                    else
+                      echo "Only Letters & Numbers are allowed."
+                  fi
             ;;
           [nN]|[nN][oO])
             echo "You have said no? We cannot work without your permission!"
             ;;
           *)
             echo "Invalid response. You okay?"
-                ;;
+            ;;
     esac
