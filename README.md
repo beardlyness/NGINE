@@ -7,6 +7,11 @@
 <p align="center">This script will make it super easy to setup a LEMP server.</p>
 
 # Options
+OS Support: <br />
+- Debian <br />
+- Ubuntu <br />
+<br />
+
 NGINX Versions: <br />
 - Stable<br />
 - Mainline<br />
