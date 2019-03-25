@@ -19,8 +19,8 @@
 # description      :This script will make it super easy to setup a LEMP server.
 # author           :The Crypto World Foundation.
 # contributors     :beard
-# date             :03-23-2019
-# version          :0.0.2 Alpha
+# date             :03-25-2019
+# version          :0.0.3 Alpha
 # os               :Debian/Ubuntu
 # usage            :bash ngine.sh
 # notes            :If you have any problems feel free to email the maintainer: beard [AT] cryptoworld [DOT] is
@@ -72,20 +72,32 @@
       echo "Setting up folders.."
         mkdir -p /etc/engine/ssl/live
         mkdir -p /var/www/html/pub/live
-      echo "Restarting NGINX daemon"
-        service nginx restart
 
-        read -r -p "Domain Name: (Leave {HTTPS:/// | HTTP://} out of the domain) " REPLY
-          if [[ "${REPLY,,}" ]]
+        read -r -p "Domain Name: (Leave { HTTPS:/// | HTTP:// | WWW. } out of the domain) " DOMAIN
+          if [[ "${DOMAIN,,}" ]]
             then
-              echo "Changing 'server_name foobar' >> server_name '$REPLY' .."
-                sed -i 's/server_name foobar/server_name '$REPLY'/g' /etc/nginx/conf.d/nginx-website.conf
-              echo "Domain Name has been set to: '$REPLY' "
+              echo "Changing 'server_name foobar' >> server_name '$DOMAIN' .."
+                sed -i 's/server_name foobar/server_name '$DOMAIN'/g' /etc/nginx/conf.d/nginx-website.conf
+              echo "Domain Name has been set to: '$DOMAIN' "
           fi
     }
 
+  #Prep for SSL setup & install via ACME.SH script | Check it out here: https://github.com/Neilpang/acme.sh
+    function ssldev() {
+          echo "Preparing for SSL install.."
+            wget -O -  https://raw.githubusercontent.com/Neilpang/acme.sh/master/acme.sh | INSTALLONLINE=1  sh
+            reset
+            service nginx stop
+            openssl dhparam -out /etc/engine/ssl/live/dhparam.pem 2048
+            bash ~/.acme.sh/acme.sh --issue --standalone -d $DOMAIN -d www.$DOMAIN -ak 4096 -k 4096 --force
+            bash ~/.acme.sh/acme.sh --install-cert -d $DOMAIN \
+              --key-file    /etc/engine/ssl/live/ssl.key \
+              --fullchain-file    /etc/engine/ssl/live/certificate.cert \
+              --reloadcmd   "service nginx restart"
+    }
+
   # Setting up different PHP Version branches to prep for install
-    function php() {
+    function phpdev() {
       echo "Setting up PHP Branches for install.."
         wget -q https://packages.sury.org/php/apt.gpg -O- | apt-key add -
       echo "deb https://packages.sury.org/php/ $flavor main" | tee /etc/apt/sources.list.d/php.list
@@ -160,12 +172,14 @@ read -r -p "Do you want to setup NGINX as a Web Server? (Y/N) " REPLY
           stable
           upkeep
           nginx_default
+          ssldev
           ;;
       2)
         echo "Grabbing Mainline build dependencies.."
           mainline
           upkeep
           nginx_default
+          ssldev
           ;;
     esac
 clear
@@ -209,7 +223,7 @@ read -r -p "Do you want to install and setup PHP? (Y/N) " REPLY
     case $CHOICE in
       1)
         echo "Installing PHP 5.6, and its modules.."
-          php
+          phpdev
           upkeep
             apt install php5.6 php5.6-fpm php5.6-cli php5.6-common php5.6-curl php5.6-mbstring php5.6-mysql php5.6-xml
             sed -i 's/listen.owner = www-data/listen.owner = nginx/g' /etc/php/5.6/fpm/pool.d/www.conf
@@ -218,11 +232,12 @@ read -r -p "Do you want to install and setup PHP? (Y/N) " REPLY
             sed -i 's/phpx.x-fpm.sock/php5.6-fpm.sock/g' /etc/nginx/conf.d/nginx-website.conf
             service php5.6-fpm restart
             service php5.6-fpm status
+            service nginx restart
             ps aux | grep -v root | grep php-fpm | cut -d\  -f1 | sort | uniq
           ;;
       2)
         echo "Installing PHP 7.1, and its modules.."
-          php
+          phpdev
           upkeep
             apt install php7.1 php7.1-fpm php7.1-cli php7.1-common php7.1-curl php7.1-mbstring php7.1-mysql php7.1-xml
             sed -i 's/listen.owner = www-data/listen.owner = nginx/g' /etc/php/7.1/fpm/pool.d/www.conf
@@ -231,11 +246,12 @@ read -r -p "Do you want to install and setup PHP? (Y/N) " REPLY
             sed -i 's/phpx.x-fpm.sock/php7.1-fpm.sock/g' /etc/nginx/conf.d/nginx-website.conf
             service php7.1-fpm restart
             service php7.1-fpm status
+            service nginx restart
             ps aux | grep -v root | grep php-fpm | cut -d\  -f1 | sort | uniq
           ;;
       3)
         echo "Installing PHP 7.2, and its modules.."
-          php
+          phpdev
           upkeep
             apt install php7.2 php7.2-fpm php7.2-cli php7.2-common php7.2-curl php7.2-mbstring php7.2-mysql php7.2-xml
             sed -i 's/listen.owner = www-data/listen.owner = nginx/g' /etc/php/7.2/fpm/pool.d/www.conf
@@ -244,11 +260,12 @@ read -r -p "Do you want to install and setup PHP? (Y/N) " REPLY
             sed -i 's/phpx.x-fpm.sock/php7.2-fpm.sock/g' /etc/nginx/conf.d/nginx-website.conf
             service php7.2-fpm restart
             service php7.2-fpm status
+            service nginx restart
             ps aux | grep -v root | grep php-fpm | cut -d\  -f1 | sort | uniq
           ;;
       4)
         echo "Installing PHP 7.3, and its modules.."
-          php
+          phpdev
           upkeep
            apt install php7.3 php7.3-fpm php7.3-cli php7.3-common php7.3-curl php7.3-mbstring php7.3-mysql php7.3-xml
            sed -i 's/listen.owner = www-data/listen.owner = nginx/g' /etc/php/7.3/fpm/pool.d/www.conf
@@ -257,6 +274,7 @@ read -r -p "Do you want to install and setup PHP? (Y/N) " REPLY
            sed -i 's/phpx.x-fpm.sock/php7.3-fpm.sock/g' /etc/nginx/conf.d/nginx-website.conf
            service php7.3-fpm restart
            service php7.3-fpm status
+           service nginx restart
            ps aux | grep -v root | grep php-fpm | cut -d\  -f1 | sort | uniq
           ;;
     esac
@@ -287,9 +305,9 @@ esac
                 read -r -p "Custom PHPMyAdmin URL String: " REPLY
                   if [[ "${REPLY,,}" =~ ^[a-zA-Z0-9_.-]*$ ]]
                     then
-                      echo "Changing /var/www/html/pub/live/phpmyadmin >> /var/www/html/pub/live/'$REPLY' .."
+                      echo "Changing /var/www/html/pub/live/phpmyadmin >> /var/www/html/pub/live/'$REPLY' "
                         mv /var/www/html/pub/live/phpmyadmin /var/www/html/pub/live/$REPLY
-                      echo "You can now access PHPMyAdmin via: https://yourdomain.com/$REPLY"
+                      echo "You can now access PHPMyAdmin with Username: 'phpmyadmin' via: https://$DOMAIN/$REPLY"
                     else
                       echo "Only Letters & Numbers are allowed."
                   fi
