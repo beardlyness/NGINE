@@ -17,6 +17,7 @@ PHP Versions: <br />
 - 7.1<br />
 - 7.2<br />
 - 7.3<br />
+- PHP Support via <a href="https://deb.sury.org/">SURY.ORG</a>
 <br />
 
 Supported SQLs: <br />
@@ -26,6 +27,7 @@ Supported SQLs: <br />
 
 Addons: <br />
 - PHPMyAdmin<br />
+- SSL Support via <a href="https://github.com/Neilpang/acme.sh">ACME.SH</a>
 <br />
 
 # Usage	
