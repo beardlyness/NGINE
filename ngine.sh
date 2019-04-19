@@ -73,7 +73,7 @@
           if [[ -n "${DOMAIN,,}" ]]
             then
               echo "Setting up configuration file for NGINX.."
-                wget -O /etc/nginx/conf.d/"$DOMAIN".conf https://raw.githubusercontent.com/beardlyness/NGINE/master/etc/conf.d/test.conf
+                wget -O /etc/nginx/conf.d/"$DOMAIN".conf https://raw.githubusercontent.com/beardlyness/NGINE/master/etc/conf.d/ssl-nginx-website.conf
               echo "Changing 'server_name foobar' >> server_name '$DOMAIN' .."
                 sed -i 's/server_name foobar/server_name '"$DOMAIN"'/g' /etc/nginx/conf.d/"$DOMAIN".conf
                 sed -i 's/server_name www.foobar/server_name www.'"$DOMAIN"'/g' /etc/nginx/conf.d/"$DOMAIN".conf
