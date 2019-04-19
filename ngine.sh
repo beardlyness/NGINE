@@ -19,8 +19,8 @@
 # description      :This script will make it super easy to setup a LEMP server with selected Addons.
 # author           :The Crypto World Foundation.
 # contributors     :beard
-# date             :04-08-2019
-# version          :0.0.5 Alpha
+# date             :04-19-2019
+# version          :0.0.6 Alpha
 # os               :Debian/Ubuntu
 # usage            :bash ngine.sh
 # notes            :If you have any problems feel free to email the maintainer: beard [AT] cryptoworld [DOT] is
@@ -73,7 +73,7 @@
           if [[ -n "${DOMAIN,,}" ]]
             then
               echo "Setting up configuration file for NGINX.."
-                wget -O /etc/nginx/conf.d/"$DOMAIN".conf https://raw.githubusercontent.com/beardlyness/NGINE/master/etc/conf.d/ssl-nginx-website.conf
+                wget -O /etc/nginx/conf.d/"$DOMAIN".conf https://raw.githubusercontent.com/beardlyness/NGINE/master/etc/conf.d/test.conf
               echo "Changing 'server_name foobar' >> server_name '$DOMAIN' .."
                 sed -i 's/server_name foobar/server_name '"$DOMAIN"'/g' /etc/nginx/conf.d/"$DOMAIN".conf
                 sed -i 's/server_name www.foobar/server_name www.'"$DOMAIN"'/g' /etc/nginx/conf.d/"$DOMAIN".conf
@@ -83,6 +83,27 @@
               echo "Setting up folders.."
                 mkdir -p /etc/engine/ssl/"$DOMAIN"
                 mkdir -p /var/www/html/"$DOMAIN"/live
+              echo "Setting up basic website template.."
+                wget https://github.com/beardlyness/NGINE-Custom-Errors/archive/master.tar.gz -O - | tar -xz -C /var/www/html/"$DOMAIN"/live/  && mv /var/www/html/"$DOMAIN"/live/NGINE-Custom-Errors-master/* /var/www/html/"$DOMAIN"/live/
+                sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/index.html
+                sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/401.html
+                sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/403.html
+                sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/404.html
+                sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/405.html
+                sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/406.html
+                sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/407.html
+                sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/408.html
+                sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/414.html
+                sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/415.html
+                sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/500.html
+                sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/502.html
+                sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/503.html
+                sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/504.html
+                sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/505.html
+                sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/508.html
+                sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/599.html
+              echo "Removing temporary files/folders.."
+                rm -rf /var/www/html/"$DOMAIN"/live/NGINE-Custom-Errors-master*
             else
               echo "Sorry we cannot live on! RIP Dead.."
           fi
@@ -166,7 +187,7 @@
         system=$(lsb_release -i | grep "Distributor ID:" | sed 's/Distributor ID://g' | sed 's/["]//g' | awk '{print tolower($1)}')
 
 # NGINX Arg main
-read -r -p "Do you want to setup NGINX as a Web Server? (Y/N) " REPLY
+read -r -p "Do you want to setup NGINX as a Web Server? (Y/Yes | N/No) " REPLY
   case "${REPLY,,}" in
     [yY]|[yY][eE][sS])
       HEIGHT=20
@@ -218,7 +239,7 @@ clear
 esac
 
 # PHP Arg main
-read -r -p "Do you want to install and setup PHP? (Y/N) " REPLY
+read -r -p "Do you want to install and setup PHP? (Y/Yes | N/No) " REPLY
   case "${REPLY,,}" in
     [yY]|[yY][eE][sS])
       HEIGHT=20
@@ -298,7 +319,7 @@ clear
       ;;
 esac
 
-    read -r -p "Would you like to install MySQL/MariaDB, and PHPMyAdmin? (Y/N) " REPLY
+    read -r -p "Would you like to install MySQL/MariaDB, and PHPMyAdmin? (Y/Yes | N/No) " REPLY
       case "${REPLY,,}" in
         [yY]|[yY][eE][sS])
               echo "Setting up MySQL/MariaDB.."
