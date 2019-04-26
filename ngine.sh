@@ -18,9 +18,9 @@
 # title            :NGINE.sh
 # description      :This script will make it super easy to setup a LEMP server with selected Addons.
 # author           :The Crypto World Foundation.
-# contributors     :beard
-# date             :04-19-2019
-# version          :0.0.6 Alpha
+# contributors     :beard, ksaredfx
+# date             :04-26-2019
+# version          :0.0.7 Alpha
 # os               :Debian/Ubuntu
 # usage            :bash ngine.sh
 # notes            :If you have any problems feel free to email the maintainer: beard [AT] cryptoworld [DOT] is
@@ -146,41 +146,19 @@
 #START
 
 # Checking for multiple "required" pieces of software.
-    if
-      echo -e "\033[92mPerforming upkeep of system packages.. \e[0m"
-        upkeep
-      echo -e "\033[92mChecking software list..\e[0m"
+    tools=( lsb_release wget curl dialog socat dirmngr apt-transport-https ca-certificates )
+     grab_eware=""
+       for e in "${tools[@]}"; do
+         if command -v "$e" >/dev/null 2>&1; then
+           echo "Dependency $e is installed.."
+         else
+           echo "Dependency $e is not installed..?"
+            upkeep
+            grab_eware="$grab_eware $e"
+         fi
+       done
+      apt-get install $grab_eware
 
-      [ ! -x  /usr/bin/lsb_release ] || [ ! -x  /usr/bin/socat ] || [ ! -x  /usr/bin/wget ] || [ ! -x  /usr/bin/apt-transport-https ] || [ ! -x  /usr/bin/dirmngr ] || [ ! -x  /usr/bin/ca-certificates ] || [ ! -x  /usr/bin/dialog ] ; then
-
-        echo -e "\033[92mlsb_release: checking for software..\e[0m"
-        echo -e "\033[34mInstalling lsb_release, Please Wait...\e[0m"
-          apt-get install lsb-release
-
-        echo -e "\033[92mwget: checking for software..\e[0m"
-        echo -e "\033[34mInstalling wget, Please Wait...\e[0m"
-          apt-get install wget
-
-        echo -e "\033[92msocat: checking for software..\e[0m"
-        echo -e "\033[34mInstalling socat, Please Wait...\e[0m"
-          apt-get install socat
-
-        echo -e "\033[92mapt-transport-https: checking for software..\e[0m"
-        echo -e "\033[34mInstalling apt-transport-https, Please Wait...\e[0m"
-          apt-get install apt-transport-https
-
-        echo -e "\033[92mdirmngr: checking for software..\e[0m"
-        echo -e "\033[34mInstalling dirmngr, Please Wait...\e[0m"
-          apt-get install dirmngr
-
-        echo -e "\033[92mca-certificates: checking for software..\e[0m"
-        echo -e "\033[34mInstalling ca-certificates, Please Wait...\e[0m"
-          apt-get install ca-certificates
-
-        echo -e "\033[92mdialog: checking for software..\e[0m"
-        echo -e "\033[34mInstalling dialog, Please Wait...\e[0m"
-          apt-get install dialog
-    fi
 
     # Grabbing info on active machine.
         flavor=$(lsb_release -cs)
