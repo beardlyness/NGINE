@@ -1,0 +1,21 @@
+
+      error_page 401 /errors/401.html;
+      error_page 403 /errors/403.html;
+      error_page 404 /errors/404.html;
+      error_page 405 /errors/405.html;
+      error_page 406 /errors/406.html;
+      error_page 407 /errors/407.html;
+      error_page 408 /errors/408.html;
+      error_page 414 /errors/414.html;
+      error_page 415 /errors/415.html;
+      error_page 500 /errors/500.html;
+      error_page 502 /errors/502.html;
+      error_page 504 /errors/504.html;
+      error_page 505 /errors/505.html;
+      error_page 508 /errors/508.html;
+      error_page 599 /errors/599.html;
+
+      location ^~ /errors {
+        internal;
+        root /var/www/html/domain/live;
+}
