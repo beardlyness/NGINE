@@ -19,8 +19,8 @@
 # description      :This script will make it super easy to setup a LEMP server with selected Addons.
 # author           :The Crypto World Foundation.
 # contributors     :beard, ksaredfx
-# date             :04-26-2019
-# version          :0.0.7 Alpha
+# date             :04-28-2019
+# version          :0.0.8 Alpha
 # os               :Debian/Ubuntu
 # usage            :bash ngine.sh
 # notes            :If you have any problems feel free to email the maintainer: beard [AT] cryptoworld [DOT] is
@@ -82,31 +82,69 @@
               echo "Domain Name has been set to: '$DOMAIN' "
               echo "Setting up folders.."
                 mkdir -p /etc/engine/ssl/"$DOMAIN"
+                mkdir -p /etc/nginx/ngine
                 mkdir -p /var/www/html/"$DOMAIN"/live
-              echo "Setting up basic website template.."
-                wget https://github.com/beardlyness/NGINE-Custom-Errors/archive/master.tar.gz -O - | tar -xz -C /var/www/html/"$DOMAIN"/live/  && mv /var/www/html/"$DOMAIN"/live/NGINE-Custom-Errors-master/* /var/www/html/"$DOMAIN"/live/
-                sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/index.html
-                sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/401.html
-                sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/403.html
-                sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/404.html
-                sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/405.html
-                sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/406.html
-                sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/407.html
-                sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/408.html
-                sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/414.html
-                sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/415.html
-                sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/500.html
-                sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/502.html
-                sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/503.html
-                sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/504.html
-                sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/505.html
-                sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/508.html
-                sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/599.html
-              echo "Removing temporary files/folders.."
-                rm -rf /var/www/html/"$DOMAIN"/live/NGINE-Custom-Errors-master*
+              echo "Grabbing NGINE Includes"
+                wget -O /etc/nginx/ngine/gzip https://raw.githubusercontent.com/beardlyness/NGINE/master/etc/nginx/ngine/gzip
+                wget -O /etc/nginx/ngine/cache https://raw.githubusercontent.com/beardlyness/NGINE/master/etc/nginx/ngine/cache
+                wget -O /etc/nginx/ngine/php https://raw.githubusercontent.com/beardlyness/NGINE/master/etc/nginx/ngine/php
             else
               echo "Sorry we cannot live on! RIP Dead.."
           fi
+    }
+
+    function custom_errors_html() {
+          echo "Grabbing Customer Error Controller"
+            wget -O /etc/nginx/ngine/error_handling https://raw.githubusercontent.com/beardlyness/NGINE/master/etc/nginx/ngine/error_handling_html
+            sed -i 's/domain/'"$DOMAIN"'/g' /etc/nginx/ngine/error_handling
+          echo "Setting up basic website template.."
+            wget https://github.com/beardlyness/NGINE-Custom-Errors/archive/master.tar.gz -O - | tar -xz -C /var/www/html/"$DOMAIN"/live/  && mv /var/www/html/"$DOMAIN"/live/NGINE-Custom-Errors-master/* /var/www/html/"$DOMAIN"/live/
+            sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/index.html
+            sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/html/401.html
+            sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/html/403.html
+            sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/html/404.html
+            sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/html/405.html
+            sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/html/406.html
+            sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/html/407.html
+            sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/html/408.html
+            sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/html/414.html
+            sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/html/415.html
+            sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/html/500.html
+            sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/html/502.html
+            sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/html/503.html
+            sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/html/504.html
+            sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/html/505.html
+            sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/html/508.html
+            sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/html/599.html
+          echo "Removing temporary files/folders.."
+            rm -rf /var/www/html/"$DOMAIN"/live/NGINE-Custom-Errors-master*
+    }
+
+    function custom_errors_php() {
+      echo "Fixing up the ""$DOMAIN"" NGINX Configuration file.."
+        wget -O /etc/nginx/ngine/error_handling https://raw.githubusercontent.com/beardlyness/NGINE/master/etc/nginx/ngine/error_handling_php
+        sed -i 's/domain/'"$DOMAIN"'/g' /etc/nginx/ngine/error_handling
+      echo "Setting up basic website template.."
+        wget https://github.com/beardlyness/NGINE-Custom-Errors/archive/master.tar.gz -O - | tar -xz -C /var/www/html/"$DOMAIN"/live/  && mv /var/www/html/"$DOMAIN"/live/NGINE-Custom-Errors-master/* /var/www/html/"$DOMAIN"/live/
+        sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/index.html
+        sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/php/401.php
+        sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/php/403.php
+        sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/php/404.php
+        sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/php/405.php
+        sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/php/406.php
+        sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/php/407.php
+        sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/php/408.php
+        sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/php/414.php
+        sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/php/415.php
+        sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/php/500.php
+        sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/php/502.php
+        sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/php/503.php
+        sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/php/504.php
+        sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/php/505.php
+        sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/php/508.php
+        sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/php/599.php
+      echo "Removing temporary files/folders.."
+        rm -rf /var/www/html/"$DOMAIN"/live/NGINXY-Custom-Errors-master && rm -rf /var/www/html/"$DOMAIN"/live/errors/LICENSE
     }
 
   #Prep for SSL setup & install via ACME.SH script | Check it out here: https://github.com/Neilpang/acme.sh
@@ -119,8 +157,7 @@
             bash ~/.acme.sh/acme.sh --issue --standalone -d "$DOMAIN" -d www."$DOMAIN" -ak 4096 -k 4096 --force
             bash ~/.acme.sh/acme.sh --install-cert -d "$DOMAIN" \
               --key-file    /etc/engine/ssl/"$DOMAIN"/ssl.key \
-              --fullchain-file    /etc/engine/ssl/"$DOMAIN"/certificate.cert \
-              --reloadcmd   "service nginx restart"
+              --fullchain-file    /etc/engine/ssl/"$DOMAIN"/certificate.cert
     }
 
     #Prep for SSL setup for Qualys rating
@@ -195,6 +232,57 @@ read -r -p "Do you want to setup NGINX as a Web Server? (Y/Yes | N/No) " REPLY
           upkeep
           nginx_default
           ssldev
+
+          # Error_Handling Arg main
+          read -r -p "Do you want to setup Custom Error Handling for NGINX? (Y/Yes | N/No) " REPLY
+            case "${REPLY,,}" in
+              [yY]|[yY][eE][sS])
+                HEIGHT=20
+                WIDTH=120
+                CHOICE_HEIGHT=2
+                BACKTITLE="NGINE"
+                TITLE="NGINX Custom Error Handling"
+                MENU="Choose one of the following Error Handling options:"
+
+                OPTIONS=(1 "HTML (Basic Error Reporting)"
+                         2 "PHP (Advance Error Handling)")
+
+                CHOICE=$(dialog --clear \
+                                --backtitle "$BACKTITLE" \
+                                --title "$TITLE" \
+                                --menu "$MENU" \
+                                $HEIGHT $WIDTH $CHOICE_HEIGHT \
+                                "${OPTIONS[@]}" \
+                                2>&1 >/dev/tty)
+
+
+          # Attached Arg for dialogs $CHOICE output for Error_Handling
+              case $CHOICE in
+                1)
+                  echo "HTML (Basic Error Reporting)"
+                    custom_errors_html
+                    service nginx restart
+                    service nginx status
+                    ;;
+                2)
+                  echo "PHP (Advance Error Handling)"
+                    custom_errors_php
+                    service nginx restart
+                    service nginx status
+                    ;;
+              esac
+          clear
+
+          # Close Arg for Error_Handling Statement.
+                ;;
+              [nN]|[nN][oO])
+                echo "You have said no? We cannot work without your permission!"
+                ;;
+              *)
+                echo "Invalid response. You okay?"
+                ;;
+          esac
+
           ;;
       2)
         echo "Grabbing Mainline build dependencies.."
@@ -202,6 +290,57 @@ read -r -p "Do you want to setup NGINX as a Web Server? (Y/Yes | N/No) " REPLY
           upkeep
           nginx_default
           ssldev
+
+          # Error_Handling Arg main
+          read -r -p "Do you want to setup Custom Error Handling for NGINX? (Y/Yes | N/No) " REPLY
+            case "${REPLY,,}" in
+              [yY]|[yY][eE][sS])
+                HEIGHT=20
+                WIDTH=120
+                CHOICE_HEIGHT=2
+                BACKTITLE="NGINE"
+                TITLE="NGINX Custom Error Handling"
+                MENU="Choose one of the following Error Handling options:"
+
+                OPTIONS=(1 "HTML (Basic Error Reporting)"
+                         2 "PHP (Advance Error Handling)")
+
+                CHOICE=$(dialog --clear \
+                                --backtitle "$BACKTITLE" \
+                                --title "$TITLE" \
+                                --menu "$MENU" \
+                                $HEIGHT $WIDTH $CHOICE_HEIGHT \
+                                "${OPTIONS[@]}" \
+                                2>&1 >/dev/tty)
+
+
+          # Attached Arg for dialogs $CHOICE output for Error_Handling
+              case $CHOICE in
+                1)
+                  echo "HTML (Basic Error Reporting)"
+                    custom_errors_html
+                    service nginx restart
+                    service nginx status
+                    ;;
+                2)
+                  echo "PHP (Advance Error Handling)"
+                    custom_errors_php
+                    service nginx restart
+                    service nginx status
+                    ;;
+              esac
+          clear
+
+          # Close Arg for Error_Handling Statement.
+                ;;
+              [nN]|[nN][oO])
+                echo "You have said no? We cannot work without your permission!"
+                ;;
+              *)
+                echo "Invalid response. You okay?"
+                ;;
+          esac
+
           ;;
     esac
 clear
@@ -250,7 +389,8 @@ read -r -p "Do you want to install and setup PHP? (Y/Yes | N/No) " REPLY
             sed -i 's/listen.owner = www-data/listen.owner = nginx/g' /etc/php/7.1/fpm/pool.d/www.conf
             sed -i 's/listen.group = www-data/listen.group = nginx/g' /etc/php/7.1/fpm/pool.d/www.conf
             sed -i 's/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/g' /etc/php/7.1/fpm/php.ini
-            sed -i 's/phpx.x-fpm.sock/php7.1-fpm.sock/g' /etc/nginx/conf.d/"$DOMAIN".conf
+            sed -i 's/phpx.x-fpm.sock/php7.1-fpm.sock/g' /etc/nginx/ngine/php
+            sed -i 's/phpx.x-fpm.sock/php7.1-fpm.sock/g' /etc/nginx/ngine/error_handling
             service php7.1-fpm restart
             service php7.1-fpm status
             service nginx restart
@@ -264,7 +404,8 @@ read -r -p "Do you want to install and setup PHP? (Y/Yes | N/No) " REPLY
             sed -i 's/listen.owner = www-data/listen.owner = nginx/g' /etc/php/7.2/fpm/pool.d/www.conf
             sed -i 's/listen.group = www-data/listen.group = nginx/g' /etc/php/7.2/fpm/pool.d/www.conf
             sed -i 's/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/g' /etc/php/7.2/fpm/php.ini
-            sed -i 's/phpx.x-fpm.sock/php7.2-fpm.sock/g' /etc/nginx/conf.d/"$DOMAIN".conf
+            sed -i 's/phpx.x-fpm.sock/php7.2-fpm.sock/g' /etc/nginx/ngine/php
+            sed -i 's/phpx.x-fpm.sock/php7.2-fpm.sock/g' /etc/nginx/ngine/error_handling
             service php7.2-fpm restart
             service php7.2-fpm status
             service nginx restart
@@ -278,7 +419,8 @@ read -r -p "Do you want to install and setup PHP? (Y/Yes | N/No) " REPLY
            sed -i 's/listen.owner = www-data/listen.owner = nginx/g' /etc/php/7.3/fpm/pool.d/www.conf
            sed -i 's/listen.group = www-data/listen.group = nginx/g' /etc/php/7.3/fpm/pool.d/www.conf
            sed -i 's/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/g' /etc/php/7.3/fpm/php.ini
-           sed -i 's/phpx.x-fpm.sock/php7.3-fpm.sock/g' /etc/nginx/conf.d/"$DOMAIN".conf
+           sed -i 's/phpx.x-fpm.sock/php7.3-fpm.sock/g' /etc/nginx/ngine/php
+           sed -i 's/phpx.x-fpm.sock/php7.3-fpm.sock/g' /etc/nginx/ngine/error_handling
            service php7.3-fpm restart
            service php7.3-fpm status
            service nginx restart
