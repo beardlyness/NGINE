@@ -16,7 +16,7 @@ error_page 599 /errors/599.php;
 
 location ^~ /errors {
   internal;
-  root /var/www/html/publicwiki.org/live;
+  root /var/www/html/domain/live;
 fastcgi_pass unix:/run/php/phpx.x-fpm.sock;
       fastcgi_index index.php;
 
