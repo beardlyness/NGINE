@@ -144,7 +144,7 @@
         sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/php/508.php
         sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/php/599.php
       echo "Removing temporary files/folders.."
-        rm -rf /var/www/html/"$DOMAIN"/live/NGINXY-Custom-Errors-master && rm -rf /var/www/html/"$DOMAIN"/live/errors/LICENSE
+        rm -rf /var/www/html/"$DOMAIN"/live/NGINE-Custom-Errors-master*
     }
 
   #Prep for SSL setup & install via ACME.SH script | Check it out here: https://github.com/Neilpang/acme.sh
