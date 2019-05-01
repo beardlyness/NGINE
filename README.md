@@ -18,7 +18,6 @@ NGINX Versions: <br />
 <br />
 
 PHP Versions: <br />
-- 5.6<br />
 - 7.1<br />
 - 7.2<br />
 - 7.3<br />
@@ -26,8 +25,7 @@ PHP Versions: <br />
 <br />
 
 Supported SQLs: <br />
-- MySQL<br />
-- MariaDB<br />
+- MariaDB | MySQL<br />
 <br />
 
 Addons: <br />
