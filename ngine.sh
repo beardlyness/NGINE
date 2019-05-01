@@ -19,8 +19,8 @@
 # description      :This script will make it super easy to setup a LEMP server with selected Addons.
 # author           :The Crypto World Foundation.
 # contributors     :beard, ksaredfx
-# date             :04-28-2019
-# version          :0.0.8 Alpha
+# date             :05-01-2019
+# version          :0.0.9 Alpha
 # os               :Debian/Ubuntu
 # usage            :bash ngine.sh
 # notes            :If you have any problems feel free to email the maintainer: beard [AT] cryptoworld [DOT] is
@@ -31,6 +31,12 @@
     echo "You need to be logged in as root!"
       exit 1
   fi
+
+  # Project URL, Web Directory, and the Module Directory for Mapping in script.
+    P_URL="https://raw.githubusercontent.com/beardlyness/NGINE/master/"
+    P_WEB_DIR="/var/www/html"
+    P_MOD_DIR="/etc/nginx/ngine"
+
 
 # Setting up an update/upgrade global function
   function upkeep() {
@@ -64,16 +70,16 @@
         ulimit -n 65536
         ulimit -a
       echo "Setting up Security Limits.."
-        wget -O /etc/security/limits.conf https://raw.githubusercontent.com/beardlyness/NGINE/master/etc/security/limits.conf
+        wget -O /etc/security/limits.conf "$P_URL"/etc/security/limits.conf
       echo "Setting up background NGINX workers.."
-        wget -O /etc/default/nginx https://raw.githubusercontent.com/beardlyness/NGINE/master/etc/default/nginx
+        wget -O /etc/default/nginx "$P_URL"/etc/default/nginx
 
       # Attached grab for Domain Name
         read -r -p "Domain Name: (Leave { HTTPS:/// | HTTP:// | WWW. } out of the domain) " DOMAIN
           if [[ -n "${DOMAIN,,}" ]]
             then
               echo "Setting up configuration file for NGINX.."
-                wget -O /etc/nginx/conf.d/"$DOMAIN".conf https://raw.githubusercontent.com/beardlyness/NGINE/master/etc/conf.d/ssl-nginx-website.conf
+                wget -O /etc/nginx/conf.d/"$DOMAIN".conf "$P_URL"/etc/conf.d/ssl-nginx-website.conf
               echo "Changing 'server_name foobar' >> server_name '$DOMAIN' .."
                 sed -i 's/server_name foobar/server_name '"$DOMAIN"'/g' /etc/nginx/conf.d/"$DOMAIN".conf
                 sed -i 's/server_name www.foobar/server_name www.'"$DOMAIN"'/g' /etc/nginx/conf.d/"$DOMAIN".conf
@@ -82,69 +88,49 @@
               echo "Domain Name has been set to: '$DOMAIN' "
               echo "Setting up folders.."
                 mkdir -p /etc/engine/ssl/"$DOMAIN"
-                mkdir -p /etc/nginx/ngine
-                mkdir -p /var/www/html/"$DOMAIN"/live
+                mkdir -p "$P_MOD_DIR"
+                mkdir -p "$P_WEB_DIR"/"$DOMAIN"/live
               echo "Grabbing NGINE Includes"
-                wget -O /etc/nginx/ngine/gzip https://raw.githubusercontent.com/beardlyness/NGINE/master/etc/nginx/ngine/gzip
-                wget -O /etc/nginx/ngine/cache https://raw.githubusercontent.com/beardlyness/NGINE/master/etc/nginx/ngine/cache
-                wget -O /etc/nginx/ngine/php https://raw.githubusercontent.com/beardlyness/NGINE/master/etc/nginx/ngine/php
+                wget -O "$P_MOD_DIR"/gzip "$P_URL"/"$P_MOD_DIR"/gzip
+                wget -O "$P_MOD_DIR"/cache "$P_URL"/"$P_MOD_DIR"/cache
+                wget -O "$P_MOD_DIR"/php "$P_URL"/"$P_MOD_DIR"/php
             else
               echo "Sorry we cannot live on! RIP Dead.."
           fi
     }
 
     function custom_errors_html() {
-          echo "Grabbing Customer Error Controller"
-            wget -O /etc/nginx/ngine/error_handling https://raw.githubusercontent.com/beardlyness/NGINE/master/etc/nginx/ngine/error_handling_html
-            sed -i 's/domain/'"$DOMAIN"'/g' /etc/nginx/ngine/error_handling
-          echo "Setting up basic website template.."
-            wget https://github.com/beardlyness/NGINE-Custom-Errors/archive/master.tar.gz -O - | tar -xz -C /var/www/html/"$DOMAIN"/live/  && mv /var/www/html/"$DOMAIN"/live/NGINE-Custom-Errors-master/* /var/www/html/"$DOMAIN"/live/
-            sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/index.html
-            sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/html/401.html
-            sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/html/403.html
-            sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/html/404.html
-            sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/html/405.html
-            sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/html/406.html
-            sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/html/407.html
-            sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/html/408.html
-            sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/html/414.html
-            sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/html/415.html
-            sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/html/500.html
-            sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/html/502.html
-            sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/html/503.html
-            sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/html/504.html
-            sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/html/505.html
-            sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/html/508.html
-            sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/html/599.html
-          echo "Removing temporary files/folders.."
-            rm -rf /var/www/html/"$DOMAIN"/live/NGINE-Custom-Errors-master*
+      echo "Grabbing Customer Error Controller"
+        wget -O "$P_MOD_DIR"/error_handling "$P_URL"/"$P_MOD_DIR"/error_handling_html
+        sed -i 's/domain/'"$DOMAIN"'/g' "$P_MOD_DIR"/error_handling
+      echo "Setting up basic website template.."
+        wget https://github.com/beardlyness/NGINE-Custom-Errors/archive/master.tar.gz -O - | tar -xz -C "$P_WEB_DIR"/"$DOMAIN"/live/  && mv "$P_WEB_DIR"/"$DOMAIN"/live/NGINE-Custom-Errors-master/* "$P_WEB_DIR"/"$DOMAIN"/live/
+        sed -i 's/domain/'"$DOMAIN"'/g'  "$P_WEB_DIR"/"$DOMAIN"/live/index.html
+
+      #Setup for e_page touch for HTML Error Pages
+        pages=( 401.html 403.html 404.html 405.html 406.html 407.html 408.html 414.html 415.html 500.html 502.html 503.html 504.html 505.html 508.html 599.html)
+          for e_page in "${pages[@]}"; do
+            sed -i 's/domain/'"$DOMAIN"'/g' "$P_WEB_DIR"/"$DOMAIN"/live/errors/html/"$e_page"
+          done
+      echo "Removing temporary files/folders.."
+        rm -rf "$P_WEB_DIR"/"$DOMAIN"/live/NGINE-Custom-Errors-master*
     }
 
     function custom_errors_php() {
       echo "Fixing up the ""$DOMAIN"" NGINX Configuration file.."
-        wget -O /etc/nginx/ngine/error_handling https://raw.githubusercontent.com/beardlyness/NGINE/master/etc/nginx/ngine/error_handling_php
-        sed -i 's/domain/'"$DOMAIN"'/g' /etc/nginx/ngine/error_handling
+        wget -O "$P_MOD_DIR"/error_handling "$P_URL"/"$P_MOD_DIR"/error_handling_php
+        sed -i 's/domain/'"$DOMAIN"'/g' "$P_MOD_DIR"/error_handling
       echo "Setting up basic website template.."
-        wget https://github.com/beardlyness/NGINE-Custom-Errors/archive/master.tar.gz -O - | tar -xz -C /var/www/html/"$DOMAIN"/live/  && mv /var/www/html/"$DOMAIN"/live/NGINE-Custom-Errors-master/* /var/www/html/"$DOMAIN"/live/
-        sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/index.html
-        sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/php/401.php
-        sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/php/403.php
-        sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/php/404.php
-        sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/php/405.php
-        sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/php/406.php
-        sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/php/407.php
-        sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/php/408.php
-        sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/php/414.php
-        sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/php/415.php
-        sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/php/500.php
-        sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/php/502.php
-        sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/php/503.php
-        sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/php/504.php
-        sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/php/505.php
-        sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/php/508.php
-        sed -i 's/domain/'"$DOMAIN"'/g'  /var/www/html/"$DOMAIN"/live/errors/php/599.php
+        wget https://github.com/beardlyness/NGINE-Custom-Errors/archive/master.tar.gz -O - | tar -xz -C "$P_WEB_DIR"/"$DOMAIN"/live/  && mv "$P_WEB_DIR"/"$DOMAIN"/live/NGINE-Custom-Errors-master/* "$P_WEB_DIR"/"$DOMAIN"/live/
+        sed -i 's/domain/'"$DOMAIN"'/g'  "$P_WEB_DIR"/"$DOMAIN"/live/index.html
+
+      #Setup for e_page touch for PHP Error Pages
+        pages=( 401.php 403.php 404.php 405.php 406.php 407.php 408.php 414.php 415.php 500.php 502.php 503.php 504.php 505.php 508.php 599.php )
+          for e_page in "${pages[@]}"; do
+            sed -i 's/domain/'"$DOMAIN"'/g' "$P_WEB_DIR"/"$DOMAIN"/live/errors/php/"$e_page"
+          done
       echo "Removing temporary files/folders.."
-        rm -rf /var/www/html/"$DOMAIN"/live/NGINE-Custom-Errors-master*
+        rm -rf "$P_WEB_DIR"/"$DOMAIN"/live/NGINXY-Custom-Errors-master && rm -rf "$P_WEB_DIR"/"$DOMAIN"/live/errors/LICENSE
     }
 
   #Prep for SSL setup & install via ACME.SH script | Check it out here: https://github.com/Neilpang/acme.sh
@@ -195,7 +181,6 @@
          fi
        done
       apt-get install $grab_eware
-
 
     # Grabbing info on active machine.
         flavor=$(lsb_release -cs)
@@ -389,8 +374,8 @@ read -r -p "Do you want to install and setup PHP? (Y/Yes | N/No) " REPLY
             sed -i 's/listen.owner = www-data/listen.owner = nginx/g' /etc/php/7.1/fpm/pool.d/www.conf
             sed -i 's/listen.group = www-data/listen.group = nginx/g' /etc/php/7.1/fpm/pool.d/www.conf
             sed -i 's/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/g' /etc/php/7.1/fpm/php.ini
-            sed -i 's/phpx.x-fpm.sock/php7.1-fpm.sock/g' /etc/nginx/ngine/php
-            sed -i 's/phpx.x-fpm.sock/php7.1-fpm.sock/g' /etc/nginx/ngine/error_handling
+            sed -i 's/phpx.x-fpm.sock/php7.1-fpm.sock/g' "$P_MOD_DIR"/php
+            sed -i 's/phpx.x-fpm.sock/php7.1-fpm.sock/g' "$P_MOD_DIR"/error_handling
             service php7.1-fpm restart
             service php7.1-fpm status
             service nginx restart
@@ -404,8 +389,8 @@ read -r -p "Do you want to install and setup PHP? (Y/Yes | N/No) " REPLY
             sed -i 's/listen.owner = www-data/listen.owner = nginx/g' /etc/php/7.2/fpm/pool.d/www.conf
             sed -i 's/listen.group = www-data/listen.group = nginx/g' /etc/php/7.2/fpm/pool.d/www.conf
             sed -i 's/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/g' /etc/php/7.2/fpm/php.ini
-            sed -i 's/phpx.x-fpm.sock/php7.2-fpm.sock/g' /etc/nginx/ngine/php
-            sed -i 's/phpx.x-fpm.sock/php7.2-fpm.sock/g' /etc/nginx/ngine/error_handling
+            sed -i 's/phpx.x-fpm.sock/php7.2-fpm.sock/g' "$P_MOD_DIR"/php
+            sed -i 's/phpx.x-fpm.sock/php7.2-fpm.sock/g' "$P_MOD_DIR"/error_handling
             service php7.2-fpm restart
             service php7.2-fpm status
             service nginx restart
@@ -419,8 +404,8 @@ read -r -p "Do you want to install and setup PHP? (Y/Yes | N/No) " REPLY
            sed -i 's/listen.owner = www-data/listen.owner = nginx/g' /etc/php/7.3/fpm/pool.d/www.conf
            sed -i 's/listen.group = www-data/listen.group = nginx/g' /etc/php/7.3/fpm/pool.d/www.conf
            sed -i 's/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/g' /etc/php/7.3/fpm/php.ini
-           sed -i 's/phpx.x-fpm.sock/php7.3-fpm.sock/g' /etc/nginx/ngine/php
-           sed -i 's/phpx.x-fpm.sock/php7.3-fpm.sock/g' /etc/nginx/ngine/error_handling
+           sed -i 's/phpx.x-fpm.sock/php7.3-fpm.sock/g' "$P_MOD_DIR"/php
+           sed -i 's/phpx.x-fpm.sock/php7.3-fpm.sock/g' "$P_MOD_DIR"/error_handling
            service php7.3-fpm restart
            service php7.3-fpm status
            service nginx restart
@@ -448,14 +433,14 @@ esac
               echo "Setting up PHPMyAdmin.."
                 apt-get install phpmyadmin
                 apt-get install libmcrypt-dev
-                ln -s /usr/share/phpmyadmin /var/www/html/"$DOMAIN"/live
+                ln -s /usr/share/phpmyadmin "$P_WEB_DIR"/"$DOMAIN"/live
 
                 # Changes URL/phpmyadmin >> URL/Custom+String
                 read -r -p "Custom PHPMyAdmin URL String: " REPLY
                   if [[ "${REPLY,,}" =~ ^[a-zA-Z0-9_.-]*$ ]]
                     then
-                      echo "Changing /var/www/html/""$DOMAIN""/live/phpmyadmin >> /var/www/html/""$DOMAIN""/live/""$REPLY"" "
-                        mv /var/www/html/"$DOMAIN"/live/phpmyadmin /var/www/html/"$DOMAIN"/live/"$REPLY"
+                      echo "Changing ""$P_WEB_DIR""/""$DOMAIN""/live/phpmyadmin >> ""$P_WEB_DIR""/""$DOMAIN""/live/""$REPLY"" "
+                        mv "$P_WEB_DIR"/"$DOMAIN"/live/phpmyadmin "$P_WEB_DIR"/"$DOMAIN"/live/"$REPLY"
                       echo "You can now access PHPMyAdmin with Username: 'phpmyadmin' via: https://""$DOMAIN""/""$REPLY"" "
                     else
                       echo "Only Letters & Numbers are allowed."
