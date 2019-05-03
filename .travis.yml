@@ -5,8 +5,4 @@ matrix:
     include:
         - os: linux
 
-script: make
-
-after_success: make notify result=success
-
-after_failure: make notify result=failure
+script: ./ngine.sh
