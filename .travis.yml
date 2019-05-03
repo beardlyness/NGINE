@@ -4,5 +4,6 @@ language: bash
 matrix:
     include:
         - os: linux
-
-script: bash ngine.sh
+before_install: 
+- sudo chmod +x ngine.sh
+script: sudo ./ngine.sh
