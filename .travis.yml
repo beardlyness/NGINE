@@ -5,7 +5,7 @@ matrix:
     include:
         - os: linux
 
-script: make all
+script: make
 
 after_success: make notify result=success
 
