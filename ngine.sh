@@ -26,11 +26,11 @@
 # notes            :If you have any problems feel free to email the maintainer: beard [AT] cryptoworld [DOT] is
 #===============================================================================================================================================
 
-# Force check for root
-  if ! [ "$(id -u)" = 0 ]; then
-    echo "You need to be logged in as root!"
-      exit 1
-  fi
+# Force check for root | Testing 
+  #if ! [ "$(id -u)" = 0 ]; then
+   # echo "You need to be logged in as root!"
+   #  exit 1
+  #fi
 
   # Project URL, Web Directory, and the Module Directory for Mapping in script.
     P_URL="https://raw.githubusercontent.com/beardlyness/NGINE/master/"
