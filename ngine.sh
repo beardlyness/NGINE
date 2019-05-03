@@ -117,7 +117,7 @@
     }
 
     function custom_errors_php() {
-      echo "Fixing up the ""$DOMAIN"" NGINX Configuration file.."
+      echo "Grabbing Customer Error Controller"
         wget -O "$P_MOD_DIR"/error_handling "$P_URL"/"$P_MOD_DIR"/error_handling_php
         sed -i 's/domain/'"$DOMAIN"'/g' "$P_MOD_DIR"/error_handling
       echo "Setting up basic website template.."
