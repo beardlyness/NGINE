@@ -1,0 +1,12 @@
+sudo: true
+language: bash
+
+matrix:
+    include:
+        - os: linux
+
+script: make all
+
+after_success: make notify result=success
+
+after_failure: make notify result=failure
