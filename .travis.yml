@@ -5,4 +5,4 @@ matrix:
     include:
         - os: linux
 
-script: ./ngine.sh
+script: bash ngine.sh
