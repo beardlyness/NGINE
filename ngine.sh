@@ -19,7 +19,7 @@
 # description      :This script will make it super easy to setup a LEMP server with selected Addons.
 # author           :The Crypto World Foundation.
 # contributors     :beard, ksaredfx
-# date             :05-01-2019
+# date             :05-02-2019
 # version          :0.0.9 Alpha
 # os               :Debian/Ubuntu
 # usage            :bash ngine.sh
