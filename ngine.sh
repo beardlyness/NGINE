@@ -19,8 +19,8 @@
 # description      :This script will make it super easy to setup a LEMP server with selected Addons.
 # author           :The Crypto World Foundation.
 # contributors     :beard, ksaredfx
-# date             :05-02-2019
-# version          :0.0.9 Alpha
+# date             :05-05-2019
+# version          :0.0.10 Alpha
 # os               :Debian/Ubuntu
 # usage            :bash ngine.sh
 # notes            :If you have any problems feel free to email the maintainer: beard [AT] cryptoworld [DOT] is
@@ -32,10 +32,13 @@
      exit 1
   fi
 
-  # Project URL, Web Directory, and the Module Directory for Mapping in script.
+  # Project URL, Web Directory, SSL Directory, NGINX CONF.D Directory, Module Directory, and Repo List Path for Mapping in script.
     P_URL="https://raw.githubusercontent.com/beardlyness/NGINE/master/"
     P_WEB_DIR="/var/www/html"
+    P_SSL_DIR="/etc/engine/ssl"
+    P_NGINX_CONF_DIR="/etc/nginx/conf.d"
     P_MOD_DIR="/etc/nginx/ngine"
+    P_REPO_LIST="/etc/apt/sources.list.d"
 
 
 # Setting up an update/upgrade global function
@@ -48,15 +51,15 @@
 
   # Setting up different NGINX branches to prep for install
     function nginx_stable() {
-        echo deb http://nginx.org/packages/"$system"/ "$flavor" nginx > /etc/apt/sources.list.d/"$flavor".nginx.stable.list
-        echo deb-src http://nginx.org/packages/"$system"/ "$flavor" nginx >> /etc/apt/sources.list.d/"$flavor".nginx.stable.list
+        echo deb http://nginx.org/packages/"$system"/ "$flavor" nginx > "$P_REPO_LIST"/"$flavor".nginx.stable.list
+        echo deb-src http://nginx.org/packages/"$system"/ "$flavor" nginx >> "$P_REPO_LIST"/"$flavor".nginx.stable.list
           wget https://nginx.org/keys/nginx_signing.key
           apt-key add nginx_signing.key
       }
 
     function nginx_mainline() {
-        echo deb http://nginx.org/packages/mainline/"$system"/ "$flavor" nginx > /etc/apt/sources.list.d/"$flavor".nginx.mainline.list
-        echo deb-src http://nginx.org/packages/mainline/"$system"/ "$flavor" nginx >> /etc/apt/sources.list.d/"$flavor".nginx.mainline.list
+        echo deb http://nginx.org/packages/mainline/"$system"/ "$flavor" nginx > "$P_REPO_LIST"/"$flavor".nginx.mainline.list
+        echo deb-src http://nginx.org/packages/mainline/"$system"/ "$flavor" nginx >> "$P_REPO_LIST"/"$flavor".nginx.mainline.list
           wget https://nginx.org/keys/nginx_signing.key
           apt-key add nginx_signing.key
       }
@@ -79,15 +82,15 @@
           if [[ -n "${DOMAIN,,}" ]]
             then
               echo "Setting up configuration file for NGINX.."
-                wget -O /etc/nginx/conf.d/"$DOMAIN".conf "$P_URL"/etc/conf.d/ssl-nginx-website.conf
+                wget -O "$P_NGINX_CONF_DIR"/"$DOMAIN".conf "$P_URL"/etc/conf.d/ssl-nginx-website.conf
               echo "Changing 'server_name foobar' >> server_name '$DOMAIN' .."
-                sed -i 's/server_name foobar/server_name '"$DOMAIN"'/g' /etc/nginx/conf.d/"$DOMAIN".conf
-                sed -i 's/server_name www.foobar/server_name www.'"$DOMAIN"'/g' /etc/nginx/conf.d/"$DOMAIN".conf
+                sed -i 's/server_name foobar/server_name '"$DOMAIN"'/g' "$P_NGINX_CONF_DIR"/"$DOMAIN".conf
+                sed -i 's/server_name www.foobar/server_name www.'"$DOMAIN"'/g' "$P_NGINX_CONF_DIR"/"$DOMAIN".conf
               echo "Fixing up the site configuration file for NGINX.."
-                sed -i 's/domain/'"$DOMAIN"'/g' /etc/nginx/conf.d/"$DOMAIN".conf
+                sed -i 's/domain/'"$DOMAIN"'/g' "$P_NGINX_CONF_DIR"/"$DOMAIN".conf
               echo "Domain Name has been set to: '$DOMAIN' "
               echo "Setting up folders.."
-                mkdir -p /etc/engine/ssl/"$DOMAIN"
+                mkdir -p "$P_SSL_DIR"/"$DOMAIN"
                 mkdir -p "$P_MOD_DIR"
                 mkdir -p "$P_WEB_DIR"/"$DOMAIN"/live
               echo "Grabbing NGINE Includes"
@@ -139,21 +142,21 @@
             wget -O -  https://raw.githubusercontent.com/Neilpang/acme.sh/master/acme.sh | INSTALLONLINE=1  sh
             reset
             service nginx stop
-            openssl dhparam -out /etc/engine/ssl/"$DOMAIN"/dhparam.pem 2048
+            openssl dhparam -out "$P_SSL_DIR"/"$DOMAIN"/dhparam.pem 2048
             bash ~/.acme.sh/acme.sh --issue --standalone -d "$DOMAIN" -d www."$DOMAIN" -ak 4096 -k 4096 --force
             bash ~/.acme.sh/acme.sh --install-cert -d "$DOMAIN" \
-              --key-file    /etc/engine/ssl/"$DOMAIN"/ssl.key \
-              --fullchain-file    /etc/engine/ssl/"$DOMAIN"/certificate.cert
+              --key-file    "$P_SSL_DIR"/"$DOMAIN"/ssl.key \
+              --fullchain-file    "$P_SSL_DIR"/"$DOMAIN"/certificate.cert
     }
 
     #Prep for SSL setup for Qualys rating
     function sslqualy() {
       echo "Preparing to setup NGINX to meet Qualys 100% Standards.."
-        sed -i 's/ssl_prefer_server_ciphers/#ssl_prefer_server_ciphers/g' /etc/nginx/conf.d/"$DOMAIN".conf
-        sed -i 's/#ssl_ciphers/ssl_ciphers/g' /etc/nginx/conf.d/"$DOMAIN".conf
-        sed -i 's/#ssl_ecdh_curve/ssl_ecdh_curve/g' /etc/nginx/conf.d/"$DOMAIN".conf
+        sed -i 's/ssl_prefer_server_ciphers/#ssl_prefer_server_ciphers/g' "$P_NGINX_CONF_DIR"/"$DOMAIN".conf
+        sed -i 's/#ssl_ciphers/ssl_ciphers/g' "$P_NGINX_CONF_DIR"/"$DOMAIN".conf
+        sed -i 's/#ssl_ecdh_curve/ssl_ecdh_curve/g' "$P_NGINX_CONF_DIR"/"$DOMAIN".conf
       echo "Generating a 4096 DH Param. This may take a while.."
-        openssl dhparam -out /etc/engine/ssl/"$DOMAIN"/dhparam.pem 4096
+        openssl dhparam -out "$P_SSL_DIR"/"$DOMAIN"/dhparam.pem 4096
       echo "Restarting NGINX Service..."
         service nginx restart
         service nginx status
@@ -163,7 +166,7 @@
     function phpdev() {
       echo "Setting up PHP Branches for install.."
         wget -q https://packages.sury.org/php/apt.gpg -O- | apt-key add -
-      echo "deb https://packages.sury.org/php/ $flavor main" | tee /etc/apt/sources.list.d/php.list
+      echo "deb https://packages.sury.org/php/ $flavor main" | tee "$P_REPO_LIST"/php.list
     }
 
 #START
