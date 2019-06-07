@@ -1,9 +1,0 @@
-sudo: true
-language: bash
-
-matrix:
-    include:
-        - os: linux
-before_install: 
-- sudo chmod +x ngine.sh
-script: sudo ./ngine.sh
