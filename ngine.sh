@@ -19,8 +19,8 @@
 # description      :This script will make it super easy to setup a LEMP server with selected Addons.
 # author           :The Crypto World Foundation.
 # contributors     :beard, ksaredfx
-# date             :05-05-2019
-# version          :0.0.10 Alpha
+# date             :04-22-2020
+# version          :0.0.11 Alpha
 # os               :Debian/Ubuntu
 # usage            :bash ngine.sh
 # notes            :If you have any problems feel free to email the maintainer: beard [AT] cryptoworld [DOT] is
@@ -349,14 +349,15 @@ read -r -p "Do you want to install and setup PHP? (Y/Yes | N/No) " REPLY
     [yY]|[yY][eE][sS])
       HEIGHT=20
       WIDTH=120
-      CHOICE_HEIGHT=3
+      CHOICE_HEIGHT=4
       BACKTITLE="NGINE"
       TITLE="PHP Branch Builds"
       MENU="Choose one of the following Build options:"
 
       OPTIONS=(1 "7.1"
                2 "7.2"
-               3 "7.3")
+               3 "7.3"
+               4 "7.4")
 
       CHOICE=$(dialog --clear \
                       --backtitle "$BACKTITLE" \
@@ -411,6 +412,21 @@ read -r -p "Do you want to install and setup PHP? (Y/Yes | N/No) " REPLY
            sed -i 's/phpx.x-fpm.sock/php7.3-fpm.sock/g' "$P_MOD_DIR"/error_handling
            service php7.3-fpm restart
            service php7.3-fpm status
+           service nginx restart
+           pgrep -v root | pgrep php-fpm | cut -d\  -f1 | sort | uniq
+          ;;
+      4)
+        echo "Installing PHP 7.4, and its modules.."
+          phpdev
+          upkeep
+           apt install php7.4 php7.4-fpm php7.4-cli php7.4-common php7.4-curl php7.4-mbstring php7.4-mysql php7.4-xml
+           sed -i 's/listen.owner = www-data/listen.owner = nginx/g' /etc/php/7.4/fpm/pool.d/www.conf
+           sed -i 's/listen.group = www-data/listen.group = nginx/g' /etc/php/7.4/fpm/pool.d/www.conf
+           sed -i 's/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/g' /etc/php/7.4/fpm/php.ini
+           sed -i 's/phpx.x-fpm.sock/php7.4-fpm.sock/g' "$P_MOD_DIR"/php
+           sed -i 's/phpx.x-fpm.sock/php7.4-fpm.sock/g' "$P_MOD_DIR"/error_handling
+           service php7.4-fpm restart
+           service php7.4-fpm status
            service nginx restart
            pgrep -v root | pgrep php-fpm | cut -d\  -f1 | sort | uniq
           ;;
