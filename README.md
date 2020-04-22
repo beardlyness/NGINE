@@ -21,6 +21,7 @@ PHP Versions: <br />
 - 7.1<br />
 - 7.2<br />
 - 7.3<br />
+- 7.4<br />
 - PHP Support via <a href="https://deb.sury.org/">SURY.ORG</a>
 <br />
 
