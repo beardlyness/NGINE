@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #===============================================================================================================================================
-# (C) Copyright 2019 NGINE a project under the Crypto World Foundation (https://cryptoworld.is).
+# (C) Copyright 2021 NGINE a project under Hacked LLC.)
 #
 # Licensed under the GNU GENERAL PUBLIC LICENSE, Version 3.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,13 +17,13 @@
 #===============================================================================================================================================
 # title            :NGINE.sh
 # description      :This script will make it super easy to setup a LEMP server with selected Addons.
-# author           :The Crypto World Foundation.
+# author           :HACKED LLC.
 # contributors     :beard, ksaredfx
-# date             :04-22-2020
-# version          :0.0.11 Alpha
+# date             :01-31-2021
+# version          :0.0.12 Alpha
 # os               :Debian/Ubuntu
 # usage            :bash ngine.sh
-# notes            :If you have any problems feel free to email the maintainer: beard [AT] cryptoworld [DOT] is
+# notes            :If you have any problems feel free to email the maintainer: projects [AT] hacked [DOT] is
 #===============================================================================================================================================
 
 # Force check for root
@@ -139,7 +139,7 @@
   #Prep for SSL setup & install via ACME.SH script | Check it out here: https://github.com/Neilpang/acme.sh
     function ssldev() {
           echo "Preparing for SSL install.."
-            wget -O -  https://raw.githubusercontent.com/Neilpang/acme.sh/master/acme.sh | INSTALLONLINE=1  sh
+            wget -O -  https://get.acme.sh | INSTALLONLINE=1  sh
             reset
             service nginx stop
             openssl dhparam -out "$P_SSL_DIR"/"$DOMAIN"/dhparam.pem 2048
@@ -349,15 +349,18 @@ read -r -p "Do you want to install and setup PHP? (Y/Yes | N/No) " REPLY
     [yY]|[yY][eE][sS])
       HEIGHT=20
       WIDTH=120
-      CHOICE_HEIGHT=4
+      CHOICE_HEIGHT=7
       BACKTITLE="NGINE"
       TITLE="PHP Branch Builds"
       MENU="Choose one of the following Build options:"
 
-      OPTIONS=(1 "7.1"
-               2 "7.2"
-               3 "7.3"
-               4 "7.4")
+      OPTIONS=(1 "5.6"
+               2 "7.0"
+               3 "7.1"
+               4 "7.2"
+               5 "7.3"
+               6 "7.4"
+               7 "8.0")
 
       CHOICE=$(dialog --clear \
                       --backtitle "$BACKTITLE" \
@@ -371,6 +374,21 @@ read -r -p "Do you want to install and setup PHP? (Y/Yes | N/No) " REPLY
 # Attached Arg for dialogs $CHOICE output
     case $CHOICE in
       1)
+        echo "Installing PHP 5.6, and its modules.."
+          phpdev
+          upkeep
+            apt install php5.6 php5.6-fpm php5.6-cli php5.6-common php5.6-curl php5.6-mbstring php5.6-mysql php5.6-xml
+            sed -i 's/listen.owner = www-data/listen.owner = nginx/g' /etc/php/5.6/fpm/pool.d/www.conf
+            sed -i 's/listen.group = www-data/listen.group = nginx/g' /etc/php/5.6/fpm/pool.d/www.conf
+            sed -i 's/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/g' /etc/php/5.6/fpm/php.ini
+            sed -i 's/phpx.x-fpm.sock/php5.6-fpm.sock/g' "$P_MOD_DIR"/php
+            sed -i 's/phpx.x-fpm.sock/php5.6-fpm.sock/g' "$P_MOD_DIR"/error_handling
+            service php5.6-fpm restart
+            service php5.6-fpm status
+            service nginx restart
+            pgrep -v root | pgrep php-fpm | cut -d\  -f1 | sort | uniq
+          ;;
+      2)
         echo "Installing PHP 7.1, and its modules.."
           phpdev
           upkeep
@@ -385,7 +403,22 @@ read -r -p "Do you want to install and setup PHP? (Y/Yes | N/No) " REPLY
             service nginx restart
             pgrep -v root | pgrep php-fpm | cut -d\  -f1 | sort | uniq
           ;;
-      2)
+      3)
+        echo "Installing PHP 7.1, and its modules.."
+          phpdev
+          upkeep
+            apt install php7.1 php7.1-fpm php7.1-cli php7.1-common php7.1-curl php7.1-mbstring php7.1-mysql php7.1-xml
+            sed -i 's/listen.owner = www-data/listen.owner = nginx/g' /etc/php/7.1/fpm/pool.d/www.conf
+            sed -i 's/listen.group = www-data/listen.group = nginx/g' /etc/php/7.1/fpm/pool.d/www.conf
+            sed -i 's/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/g' /etc/php/7.1/fpm/php.ini
+            sed -i 's/phpx.x-fpm.sock/php7.1-fpm.sock/g' "$P_MOD_DIR"/php
+            sed -i 's/phpx.x-fpm.sock/php7.1-fpm.sock/g' "$P_MOD_DIR"/error_handling
+            service php7.1-fpm restart
+            service php7.1-fpm status
+            service nginx restart
+            pgrep -v root | pgrep php-fpm | cut -d\  -f1 | sort | uniq
+          ;;
+      4)
         echo "Installing PHP 7.2, and its modules.."
           phpdev
           upkeep
@@ -400,22 +433,22 @@ read -r -p "Do you want to install and setup PHP? (Y/Yes | N/No) " REPLY
             service nginx restart
             pgrep -v root | pgrep php-fpm | cut -d\  -f1 | sort | uniq
           ;;
-      3)
+      5)
         echo "Installing PHP 7.3, and its modules.."
           phpdev
           upkeep
-           apt install php7.3 php7.3-fpm php7.3-cli php7.3-common php7.3-curl php7.3-mbstring php7.3-mysql php7.3-xml
-           sed -i 's/listen.owner = www-data/listen.owner = nginx/g' /etc/php/7.3/fpm/pool.d/www.conf
-           sed -i 's/listen.group = www-data/listen.group = nginx/g' /etc/php/7.3/fpm/pool.d/www.conf
-           sed -i 's/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/g' /etc/php/7.3/fpm/php.ini
-           sed -i 's/phpx.x-fpm.sock/php7.3-fpm.sock/g' "$P_MOD_DIR"/php
-           sed -i 's/phpx.x-fpm.sock/php7.3-fpm.sock/g' "$P_MOD_DIR"/error_handling
-           service php7.3-fpm restart
-           service php7.3-fpm status
-           service nginx restart
-           pgrep -v root | pgrep php-fpm | cut -d\  -f1 | sort | uniq
+            apt install php7.3 php7.3-fpm php7.3-cli php7.3-common php7.3-curl php7.3-mbstring php7.3-mysql php7.3-xml
+            sed -i 's/listen.owner = www-data/listen.owner = nginx/g' /etc/php/7.3/fpm/pool.d/www.conf
+            sed -i 's/listen.group = www-data/listen.group = nginx/g' /etc/php/7.3/fpm/pool.d/www.conf
+            sed -i 's/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/g' /etc/php/7.3/fpm/php.ini
+            sed -i 's/phpx.x-fpm.sock/php7.3-fpm.sock/g' "$P_MOD_DIR"/php
+            sed -i 's/phpx.x-fpm.sock/php7.3-fpm.sock/g' "$P_MOD_DIR"/error_handling
+            service php7.3-fpm restart
+            service php7.3-fpm status
+            service nginx restart
+            pgrep -v root | pgrep php-fpm | cut -d\  -f1 | sort | uniq
           ;;
-      4)
+      6)
         echo "Installing PHP 7.4, and its modules.."
           phpdev
           upkeep
@@ -427,6 +460,21 @@ read -r -p "Do you want to install and setup PHP? (Y/Yes | N/No) " REPLY
            sed -i 's/phpx.x-fpm.sock/php7.4-fpm.sock/g' "$P_MOD_DIR"/error_handling
            service php7.4-fpm restart
            service php7.4-fpm status
+           service nginx restart
+           pgrep -v root | pgrep php-fpm | cut -d\  -f1 | sort | uniq
+          ;;
+      7)
+        echo "Installing PHP 8.0, and its modules.."
+          phpdev
+          upkeep
+           apt install php8.0 php8.0-fpm php8.0-cli php8.0-common php8.0-curl php8.0-mbstring php8.0-mysql php8.0-xml
+           sed -i 's/listen.owner = www-data/listen.owner = nginx/g' /etc/php/8.0/fpm/pool.d/www.conf
+           sed -i 's/listen.group = www-data/listen.group = nginx/g' /etc/php/8.0/fpm/pool.d/www.conf
+           sed -i 's/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/g' /etc/php/8.0/fpm/php.ini
+           sed -i 's/phpx.x-fpm.sock/php8.0-fpm.sock/g' "$P_MOD_DIR"/php
+           sed -i 's/phpx.x-fpm.sock/php8.0-fpm.sock/g' "$P_MOD_DIR"/error_handling
+           service php8.0-fpm restart
+           service php8.0-fpm status
            service nginx restart
            pgrep -v root | pgrep php-fpm | cut -d\  -f1 | sort | uniq
           ;;
