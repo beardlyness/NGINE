@@ -33,7 +33,7 @@ Supported SQLs: <br />
 
 Addons: <br />
 - PHPMyAdmin<br />
-- SSL Support via <a href="https://github.com/Neilpang/acme.sh">ACME.SH</a>
+- SSL Support via <a href="https://certbot.eff.org/">CertBOT</a>
 <br />
 
 # Usage	
@@ -42,6 +42,4 @@ Addons: <br />
 - `bash ngine.sh`
 
 # Notes
-If you have any questions feel free to email maintainer: `beard [AT] cryptoworld [DOT] is`
-
-Visit us at: https://cryptoworld.is
+If you have any questions feel free to email maintainer: `projects [AT] hacked [DOT] is`
