@@ -1,0 +1,4 @@
+location /phpmyadmin{
+        index index.php;
+        root /var/www/html/domain;
+      }
