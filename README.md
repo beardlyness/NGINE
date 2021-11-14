@@ -7,7 +7,7 @@
 <p align="center">This script will make it super easy to setup a LEMP server.</p>
 
 # Options
-OS Support: <br />
+Supported Distros: <br />
 - Debian <br />
 - Ubuntu <br />
 <br />
@@ -19,6 +19,7 @@ NGINX Versions: <br />
 
 PHP Versions: <br />
 - 5.6<br />
+- 7.0<br />
 - 7.1<br />
 - 7.2<br />
 - 7.3<br />
@@ -28,7 +29,7 @@ PHP Versions: <br />
 <br />
 
 Supported SQLs: <br />
-- MariaDB | MySQL<br />
+- MariaDB<br />
 <br />
 
 Addons: <br />
