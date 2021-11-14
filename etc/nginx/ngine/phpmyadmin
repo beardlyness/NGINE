@@ -1,4 +1,4 @@
-location /phpmyadmin{
+location /live/phpmyadmin {
         index index.php;
-        root /var/www/html/domain/live;
+        root /var/www/html/domain;
       }
