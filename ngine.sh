@@ -19,8 +19,8 @@
 # description      :This script will make it super easy to setup a LEMP server with selected Addons.
 # author           :HACKED LLC.
 # contributors     :beard, ksaredfx
-# date             :06-30-2021
-# version          :0.0.13 Alpha
+# date             :02-07-2022
+# version          :0.0.14 Alpha
 # os               :Debian/Ubuntu
 # usage            :bash ngine.sh
 # notes            :If you have any problems feel free to email the maintainer: projects [AT] hacked [DOT] is
@@ -35,11 +35,21 @@
 
 # Project Mapping
   P_URL="https://raw.githubusercontent.com/beardlyness/NGINE/master/"
+  P_NGINX_PACKAGES_URL="http://nginx.org/packages"
+  P_NGINX_KEY_URL="https://nginx.org/keys"
+  P_PHP_KEY_URL="https://packages.sury.org/php/apt.gpg"
+  P_PHP_PACKAGES_URL="https://packages.sury.org/php"
   P_WEB_DIR="/var/www/html"
   P_SSL_DIR="/etc/engine/ssl"
   P_NGINX_CONF_DIR="/etc/nginx/conf.d"
   P_MOD_DIR="/etc/nginx/ngine"
   P_REPO_LIST="/etc/apt/sources.list.d"
+  P_KEYRING_DIR="/usr/share/keyrings"
+  CertBOT_LE_DIR="/etc/letsencrypt/live/"$DOMAIN""
+  P_CUSTOM_ERROR_HANDLE_URL="https://github.com/beardlyness/NGINE-Custom-Errors/archive/master.tar.gz"
+  P_PHPMyAdmin_DURL="https://files.phpmyadmin.net/phpMyAdmin/5.1.2/phpMyAdmin-5.1.2-all-languages.tar.gz"
+  P_PHPMyAdmin_VN="phpMyAdmin-5.1.2-all-languages"
+  P_PHPMyAdmin_DIR="phpmyadmin"
 
 
 # Color for tput
@@ -70,22 +80,26 @@
 
 # Setting up different NGINX branches to prep for install
 
+# Setup for Verifying NGINX PULL via GPG
+function nginx_verify() {
+  curl "$P_NGINX_KEY_URL"/nginx_signing.key | gpg --dearmor \
+  | tee "$P_KEYRING_DIR"/nginx-archive-keyring.gpg >/dev/null
+  gpg --dry-run --quiet --import --import-options import-show "$P_KEYRING_DIR"/nginx-archive-keyring.gpg
+}
+
 # Setup for Stable Branch of NGINX
   function nginx_stable() {
-      echo deb http://nginx.org/packages/"$system"/ "$flavor" nginx > "$P_REPO_LIST"/"$flavor".nginx.stable.list
-      echo deb-src http://nginx.org/packages/"$system"/ "$flavor" nginx >> "$P_REPO_LIST"/"$flavor".nginx.stable.list
-        wget https://nginx.org/keys/nginx_signing.key
-        apt-key add nginx_signing.key
+    echo "deb [signed-by="$P_KEYRING_DIR"/nginx-archive-keyring.gpg] \
+    "$P_NGINX_PACKAGES_URL"/"$system" "$flavor" nginx" \
+        | tee "$P_REPO_LIST"/nginx.stable.list
     }
 
 # Setup for Expermiental Branch of NGINX
   function nginx_mainline() {
-      echo deb http://nginx.org/packages/mainline/"$system"/ "$flavor" nginx > "$P_REPO_LIST"/"$flavor".nginx.mainline.list
-      echo deb-src http://nginx.org/packages/mainline/"$system"/ "$flavor" nginx >> "$P_REPO_LIST"/"$flavor".nginx.mainline.list
-        wget https://nginx.org/keys/nginx_signing.key
-        apt-key add nginx_signing.key
+    echo "deb [signed-by="$P_KEYRING_DIR"/nginx-archive-keyring.gpg] \
+    "$P_NGINX_PACKAGES_URL"/mainline/"$system" "$flavor" nginx" \
+        | tee "$P_REPO_LIST"/nginx.mainline.list
     }
-
 
 # Attached func for NGINX branch prep.
   function nginx_default() {
@@ -132,7 +146,7 @@
       wget -O "$P_MOD_DIR"/error_handling "$P_URL"/"$P_MOD_DIR"/error_handling_html
       sed -i 's/domain/'"$DOMAIN"'/g' "$P_MOD_DIR"/error_handling
     echo """${yellow}""""${bold}""Setting up basic website template..""${reset}"""
-      wget https://github.com/beardlyness/NGINE-Custom-Errors/archive/master.tar.gz -O - | tar -xz -C "$P_WEB_DIR"/"$DOMAIN"/live/  && mv "$P_WEB_DIR"/"$DOMAIN"/live/NGINE-Custom-Errors-master/* "$P_WEB_DIR"/"$DOMAIN"/live/
+      wget "$P_CUSTOM_ERROR_HANDLE_URL" -O - | tar -xz -C "$P_WEB_DIR"/"$DOMAIN"/live/  && mv "$P_WEB_DIR"/"$DOMAIN"/live/NGINE-Custom-Errors-master/* "$P_WEB_DIR"/"$DOMAIN"/live/
       sed -i 's/domain/'"$DOMAIN"'/g'  "$P_WEB_DIR"/"$DOMAIN"/live/index.html
 
     #Setup for e_page touch for HTML Error Pages
@@ -150,7 +164,7 @@
       wget -O "$P_MOD_DIR"/error_handling "$P_URL"/"$P_MOD_DIR"/error_handling_php
       sed -i 's/domain/'"$DOMAIN"'/g' "$P_MOD_DIR"/error_handling
     echo """${yellow}""""${bold}""Setting up basic website template..""${reset}"""
-      wget https://github.com/beardlyness/NGINE-Custom-Errors/archive/master.tar.gz -O - | tar -xz -C "$P_WEB_DIR"/"$DOMAIN"/live/  && mv "$P_WEB_DIR"/"$DOMAIN"/live/NGINE-Custom-Errors-master/* "$P_WEB_DIR"/"$DOMAIN"/live/
+      wget "$P_CUSTOM_ERROR_HANDLE_URL" -O - | tar -xz -C "$P_WEB_DIR"/"$DOMAIN"/live/  && mv "$P_WEB_DIR"/"$DOMAIN"/live/NGINE-Custom-Errors-master/* "$P_WEB_DIR"/"$DOMAIN"/live/
       sed -i 's/domain/'"$DOMAIN"'/g'  "$P_WEB_DIR"/"$DOMAIN"/live/index.html
 
     #Setup for e_page touch for PHP Error Pages
@@ -162,7 +176,6 @@
       rm -rf "$P_WEB_DIR"/"$DOMAIN"/live/NGINE-Custom-Errors-master*
   }
 
-
 # Setup for CertBOT
   function CertBOT() {
     echo """${yellow}""""${bold}""Stopping NGINX..""${reset}"""
@@ -171,13 +184,34 @@
     echo """${yellow}""""${bold}""Installing and Setting up CertBOT for handling SSL""${reset}"""
       apt-get install certbot
       certbot certonly --standalone --preferred-challenges http -d "$DOMAIN" -d www."$DOMAIN" --agree-tos --rsa-key-size 4096
-      CertBOT_LE_DIR="/etc/letsencrypt/live/"$DOMAIN""
       cp "$CertBOT_LE_DIR"/*"" "$P_SSL_DIR/"$DOMAIN""
       mv "$P_SSL_DIR"/"$DOMAIN"/fullchain.pem "$P_SSL_DIR"/"$DOMAIN"/certificate.cert
       mv "$P_SSL_DIR"/"$DOMAIN"/privkey.pem "$P_SSL_DIR"/"$DOMAIN"/ssl.key
       openssl dhparam -out "$P_SSL_DIR"/"$DOMAIN"/dhparam.pem 2048
   }
 
+  function phpmyadmin_install() {
+    apt-get install php-json php-mbstring php-xml libmcrypt-dev -y
+    wget "$P_PHPMyAdmin_DURL"
+    tar -zxvf "$P_PHPMyAdmin_VN".tar.gz
+    mv "$P_PHPMyAdmin_VN" "$P_WEB_DIR"/"$DOMAIN"/live/"$P_PHPMyAdmin_DIR"
+    cp -pr "$P_WEB_DIR"/"$DOMAIN"/live/"$P_PHPMyAdmin_DIR"/config.sample.inc.php "$P_WEB_DIR"/"$DOMAIN"/live/"$P_PHPMyAdmin_DIR"/config.inc.php
+    nano "$P_WEB_DIR"/"$DOMAIN"/live/"$P_PHPMyAdmin_DIR"/config.inc.php
+  }
+
+  function phpmyadmin_mariadb_setup() {
+    mysql < "$P_WEB_DIR"/"$DOMAIN"/live/"$P_PHPMyAdmin_DIR"/sql/create_tables.sql -u root -p
+    mysql -u root -p
+  }
+
+  function phpmyadmin_setup() {
+    mkdir "$P_WEB_DIR"/"$DOMAIN"/live/"$P_PHPMyAdmin_DIR"/tmp
+    chmod 777 "$P_WEB_DIR"/"$DOMAIN"/live/"$P_PHPMyAdmin_DIR"/tmp
+    wget -O "$P_MOD_DIR"/phpmyadmin "$P_URL"/"$P_MOD_DIR"/phpmyadmin
+    chown -R nginx:nginx "$P_WEB_DIR"/"$DOMAIN"/live/"$P_PHPMyAdmin_DIR"
+    service nginx restart
+    service nginx status
+  }
 
 #Prep for SSL setup for Qualys rating
   function sslqualy() {
@@ -192,12 +226,20 @@
       service nginx status
   }
 
-# Setup for different PHP Version Branches for install
-  function phpdev() {
-    echo """${yellow}""""${bold}""Setting up PHP Branches for install..""${reset}"""
-      wget -q https://packages.sury.org/php/apt.gpg -O- | apt-key add -
-    echo "deb https://packages.sury.org/php/ $flavor main" | tee "$P_REPO_LIST"/php.list
-  }
+  # Setup Verficiation for PHP PULL
+    function php_verify() {
+      echo """${yellow}""""${bold}""Setting up PHP Branches for install..""${reset}"""
+        curl "$P_PHP_KEY_URL" | gpg --dearmor \
+        | tee "$P_KEYRING_DIR"/apt.gpg >/dev/null
+        gpg --dry-run --quiet --import --import-options import-show "$P_KEYRING_DIR"/apt.gpg
+    }
+
+# Setup for PHP INSTALL
+    function php_setup() {
+      echo "deb [signed-by="$P_KEYRING_DIR"/apt.gpg] \
+      "$P_PHP_PACKAGES_URL"/ "$flavor" main" \
+          | tee "$P_REPO_LIST"/php.list
+    }
 
 
 #START
@@ -248,6 +290,7 @@ read -r -p """${cyan}""""${bold}""Do you want to setup NGINX as a Web Server? (Y
       1)
         echo """${yellow}""Grabbing Stable build dependencies..""${reset}"""
           upkeep
+          nginx_verify
           nginx_stable
           upkeep
           nginx_default
@@ -306,6 +349,8 @@ read -r -p """${cyan}""""${bold}""Do you want to setup NGINX as a Web Server? (Y
           ;;
       2)
         echo """${yellow}""""${bold}""Grabbing Mainline build dependencies..""${reset}"""
+          upkeep
+          nginx_verify
           nginx_mainline
           upkeep
           nginx_default
@@ -386,13 +431,9 @@ read -r -p """${cyan}""""${bold}""Do you want to install and setup PHP? (Y/Yes |
       TITLE="PHP Branch Builds"
       MENU="Choose one of the following Build options:"
 
-      OPTIONS=(1 "5.6"
-               2 "7.0"
-               3 "7.1"
-               4 "7.2"
-               5 "7.3"
-               6 "7.4"
-               7 "8.0")
+      OPTIONS=(1 "7.4"
+               2 "8.0"
+               3 "8.1")
 
       CHOICE=$(dialog --clear \
                       --backtitle "$BACKTITLE" \
@@ -406,83 +447,9 @@ read -r -p """${cyan}""""${bold}""Do you want to install and setup PHP? (Y/Yes |
 # Attached Arg for dialogs $CHOICE output
     case $CHOICE in
       1)
-        echo """${cyan}""""${bold}""Installing PHP 5.6, and its modules..""${reset}"""
-          phpdev
-          upkeep
-            apt install php5.6 php5.6-fpm php5.6-cli php5.6-common php5.6-curl php5.6-mbstring php5.6-mysql php5.6-xml
-            sed -i 's/listen.owner = www-data/listen.owner = nginx/g' /etc/php/5.6/fpm/pool.d/www.conf
-            sed -i 's/listen.group = www-data/listen.group = nginx/g' /etc/php/5.6/fpm/pool.d/www.conf
-            sed -i 's/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/g' /etc/php/5.6/fpm/php.ini
-            sed -i 's/phpx.x-fpm.sock/php5.6-fpm.sock/g' "$P_MOD_DIR"/php
-            sed -i 's/phpx.x-fpm.sock/php5.6-fpm.sock/g' "$P_MOD_DIR"/error_handling
-            service php5.6-fpm restart
-            service php5.6-fpm status
-            service nginx restart
-            pgrep -v root | pgrep php-fpm | cut -d\  -f1 | sort | uniq
-          ;;
-      2)
-        echo """${cyan}""""${bold}""Installing PHP 7.0, and its modules..""${reset}"""
-          phpdev
-          upkeep
-            apt install php7.0 php7.0-fpm php7.0-cli php7.0-common php7.0-curl php7.0-mbstring php7.0-mysql php7.0-xml
-            sed -i 's/listen.owner = www-data/listen.owner = nginx/g' /etc/php/7.0/fpm/pool.d/www.conf
-            sed -i 's/listen.group = www-data/listen.group = nginx/g' /etc/php/7.0/fpm/pool.d/www.conf
-            sed -i 's/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/g' /etc/php/7.0/fpm/php.ini
-            sed -i 's/phpx.x-fpm.sock/php7.0-fpm.sock/g' "$P_MOD_DIR"/php
-            sed -i 's/phpx.x-fpm.sock/php7.0-fpm.sock/g' "$P_MOD_DIR"/error_handling
-            service php7.0-fpm restart
-            service php7.0-fpm status
-            service nginx restart
-            pgrep -v root | pgrep php-fpm | cut -d\  -f1 | sort | uniq
-          ;;
-      3)
-        echo """${cyan}""""${bold}""Installing PHP 7.1, and its modules..""${reset}"""
-          phpdev
-          upkeep
-            apt install php7.1 php7.1-fpm php7.1-cli php7.1-common php7.1-curl php7.1-mbstring php7.1-mysql php7.1-xml
-            sed -i 's/listen.owner = www-data/listen.owner = nginx/g' /etc/php/7.1/fpm/pool.d/www.conf
-            sed -i 's/listen.group = www-data/listen.group = nginx/g' /etc/php/7.1/fpm/pool.d/www.conf
-            sed -i 's/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/g' /etc/php/7.1/fpm/php.ini
-            sed -i 's/phpx.x-fpm.sock/php7.1-fpm.sock/g' "$P_MOD_DIR"/php
-            sed -i 's/phpx.x-fpm.sock/php7.1-fpm.sock/g' "$P_MOD_DIR"/error_handling
-            service php7.1-fpm restart
-            service php7.1-fpm status
-            service nginx restart
-            pgrep -v root | pgrep php-fpm | cut -d\  -f1 | sort | uniq
-          ;;
-      4)
-        echo """${cyan}""""${bold}""Installing PHP 7.2, and its modules..""${reset}"""
-          phpdev
-          upkeep
-            apt install php7.2 php7.2-fpm php7.2-cli php7.2-common php7.2-curl php7.2-mbstring php7.2-mysql php7.2-xml
-            sed -i 's/listen.owner = www-data/listen.owner = nginx/g' /etc/php/7.2/fpm/pool.d/www.conf
-            sed -i 's/listen.group = www-data/listen.group = nginx/g' /etc/php/7.2/fpm/pool.d/www.conf
-            sed -i 's/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/g' /etc/php/7.2/fpm/php.ini
-            sed -i 's/phpx.x-fpm.sock/php7.2-fpm.sock/g' "$P_MOD_DIR"/php
-            sed -i 's/phpx.x-fpm.sock/php7.2-fpm.sock/g' "$P_MOD_DIR"/error_handling
-            service php7.2-fpm restart
-            service php7.2-fpm status
-            service nginx restart
-            pgrep -v root | pgrep php-fpm | cut -d\  -f1 | sort | uniq
-          ;;
-      5)
-        echo """${cyan}""""${bold}""Installing PHP 7.3, and its modules..""${reset}"""
-          phpdev
-          upkeep
-            apt install php7.3 php7.3-fpm php7.3-cli php7.3-common php7.3-curl php7.3-mbstring php7.3-mysql php7.3-xml
-            sed -i 's/listen.owner = www-data/listen.owner = nginx/g' /etc/php/7.3/fpm/pool.d/www.conf
-            sed -i 's/listen.group = www-data/listen.group = nginx/g' /etc/php/7.3/fpm/pool.d/www.conf
-            sed -i 's/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/g' /etc/php/7.3/fpm/php.ini
-            sed -i 's/phpx.x-fpm.sock/php7.3-fpm.sock/g' "$P_MOD_DIR"/php
-            sed -i 's/phpx.x-fpm.sock/php7.3-fpm.sock/g' "$P_MOD_DIR"/error_handling
-            service php7.3-fpm restart
-            service php7.3-fpm status
-            service nginx restart
-            pgrep -v root | pgrep php-fpm | cut -d\  -f1 | sort | uniq
-          ;;
-      6)
         echo """${cyan}""""${bold}""Installing PHP 7.4, and its modules..""${reset}"""
-          phpdev
+          php_verify
+          php_setup
           upkeep
            apt install php7.4 php7.4-fpm php7.4-cli php7.4-common php7.4-curl php7.4-mbstring php7.4-mysql php7.4-xml
            sed -i 's/listen.owner = www-data/listen.owner = nginx/g' /etc/php/7.4/fpm/pool.d/www.conf
@@ -495,9 +462,10 @@ read -r -p """${cyan}""""${bold}""Do you want to install and setup PHP? (Y/Yes |
            service nginx restart
            pgrep -v root | pgrep php-fpm | cut -d\  -f1 | sort | uniq
           ;;
-      7)
+      2)
         echo """${cyan}""""${bold}""Installing PHP 8.0, and its modules..""${reset}"""
-          phpdev
+          php_verify
+          php_setup
           upkeep
            apt install php8.0 php8.0-fpm php8.0-cli php8.0-common php8.0-curl php8.0-mbstring php8.0-mysql php8.0-xml
            sed -i 's/listen.owner = www-data/listen.owner = nginx/g' /etc/php/8.0/fpm/pool.d/www.conf
@@ -507,6 +475,22 @@ read -r -p """${cyan}""""${bold}""Do you want to install and setup PHP? (Y/Yes |
            sed -i 's/phpx.x-fpm.sock/php8.0-fpm.sock/g' "$P_MOD_DIR"/error_handling
            service php8.0-fpm restart
            service php8.0-fpm status
+           service nginx restart
+           pgrep -v root | pgrep php-fpm | cut -d\  -f1 | sort | uniq
+          ;;
+      3)
+        echo """${cyan}""""${bold}""Installing PHP 8.1, and its modules..""${reset}"""
+          php_verify
+          php_setup
+          upkeep
+           apt install php8.1 php8.1-fpm php8.1-cli php8.1-common php8.1-curl php8.1-mbstring php8.1-mysql php8.1-xml
+           sed -i 's/listen.owner = www-data/listen.owner = nginx/g' /etc/php/8.1/fpm/pool.d/www.conf
+           sed -i 's/listen.group = www-data/listen.group = nginx/g' /etc/php/8.1/fpm/pool.d/www.conf
+           sed -i 's/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/g' /etc/php/8.1/fpm/php.ini
+           sed -i 's/phpx.x-fpm.sock/php8.1-fpm.sock/g' "$P_MOD_DIR"/php
+           sed -i 's/phpx.x-fpm.sock/php8.1-fpm.sock/g' "$P_MOD_DIR"/error_handling
+           service php8.1-fpm restart
+           service php8.1-fpm status
            service nginx restart
            pgrep -v root | pgrep php-fpm | cut -d\  -f1 | sort | uniq
           ;;
@@ -523,28 +507,30 @@ clear
       ;;
 esac
 
-# SQL & PHPMyAdmin Dialog Arg main
-    read -r -p """${cyan}""""${bold}""Would you like to install MySQL/MariaDB, and PHPMyAdmin? (Y/Yes | N/No) ""${reset}""" REPLY
+# SQL - MariaDB Dialog Arg main
+    read -r -p """${cyan}""""${bold}""Would you like to install and setup MariaDB (Y/Yes | N/No) ""${reset}""" REPLY
       case "${REPLY,,}" in
         [yY]|[yY][eE][sS])
-              echo """${cyan}""""${bold}""Setting up MySQL/MariaDB..""${reset}"""
-                apt-get install mysql-server
+              echo """${cyan}""""${bold}""Setting up MariaDB..""${reset}"""
+                apt install mariadb-server
                 mysql_secure_installation
-              echo """${cyan}""""${bold}""Setting up PHPMyAdmin..""${reset}"""
-                apt-get install phpmyadmin
-                apt-get install libmcrypt-dev
-                ln -s /usr/share/phpmyadmin "$P_WEB_DIR"/"$DOMAIN"/live
 
-              # Changes URL/phpmyadmin >> URL/Custom+String
-                read -r -p """${cyan}""""${bold}""Custom PHPMyAdmin URL String: ""${reset}""" REPLY
-                  if [[ "${REPLY,,}" =~ ^[a-zA-Z0-9_.-]*$ ]]
-                    then
-                      echo """${cyan}""""${bold}""Changing ""$P_WEB_DIR""/""$DOMAIN""/live/phpmyadmin >> ""$P_WEB_DIR""/""$DOMAIN""/live/""$REPLY"" ""${reset}"""
-                        mv "$P_WEB_DIR"/"$DOMAIN"/live/phpmyadmin "$P_WEB_DIR"/"$DOMAIN"/live/"$REPLY"
-                      echo """${cyan}""""${bold}""You can now access PHPMyAdmin with Username: 'phpmyadmin' via: https://""$DOMAIN""/""$REPLY"" ""${reset}"""
-                    else
-                      echo """${yellow}""""${bold}""Only Letters & Numbers are allowed.""${reset}"""
-                  fi
+# PHPMyAdmin Dialog Arg main
+    read -r -p """${cyan}""""${bold}""Would you like to install and setup PHPMyAdmin? (Y/Yes | N/No) ""${reset}""" REPLY
+      case "${REPLY,,}" in
+        [yY]|[yY][eE][sS])
+              echo """${cyan}""""${bold}""Setting up PHPMyAdmin..""${reset}"""
+                phpmyadmin_install
+                phpmyadmin_mariadb_setup
+                phpmyadmin_setup
+            ;;
+          [nN]|[nN][oO])
+            echo """${red}""""${bold}""You have said no? We cannot work without your permission!""${reset}"""
+            ;;
+          *)
+            echo """${yellow}""""${bold}""Invalid response. You okay?""${reset}"""
+            ;;
+    esac
             ;;
           [nN]|[nN][oO])
             echo """${red}""""${bold}""You have said no? We cannot work without your permission!""${reset}"""
