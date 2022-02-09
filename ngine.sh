@@ -45,7 +45,6 @@
   P_MOD_DIR="/etc/nginx/ngine"
   P_REPO_LIST="/etc/apt/sources.list.d"
   P_KEYRING_DIR="/usr/share/keyrings"
-  CertBOT_LE_DIR="/etc/letsencrypt/live/"$DOMAIN""
   P_CUSTOM_ERROR_HANDLE_URL="https://github.com/beardlyness/NGINE-Custom-Errors/archive/master.tar.gz"
   P_PHPMyAdmin_DURL="https://files.phpmyadmin.net/phpMyAdmin/5.1.2/phpMyAdmin-5.1.2-all-languages.tar.gz"
   P_PHPMyAdmin_VN="phpMyAdmin-5.1.2-all-languages"
@@ -184,6 +183,7 @@ function nginx_verify() {
     echo """${yellow}""""${bold}""Installing and Setting up CertBOT for handling SSL""${reset}"""
       apt-get install certbot
       certbot certonly --standalone --preferred-challenges http -d "$DOMAIN" -d www."$DOMAIN" --agree-tos --rsa-key-size 4096
+      CertBOT_LE_DIR="/etc/letsencrypt/live/"$DOMAIN""
       cp "$CertBOT_LE_DIR"/*"" "$P_SSL_DIR/"$DOMAIN""
       mv "$P_SSL_DIR"/"$DOMAIN"/fullchain.pem "$P_SSL_DIR"/"$DOMAIN"/certificate.cert
       mv "$P_SSL_DIR"/"$DOMAIN"/privkey.pem "$P_SSL_DIR"/"$DOMAIN"/ssl.key
