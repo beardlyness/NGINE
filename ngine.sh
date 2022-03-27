@@ -46,8 +46,8 @@
   P_REPO_LIST="/etc/apt/sources.list.d"
   P_KEYRING_DIR="/usr/share/keyrings"
   P_CUSTOM_ERROR_HANDLE_URL="https://github.com/beardlyness/NGINE-Custom-Errors/archive/master.tar.gz"
-  P_PHPMyAdmin_DURL="https://files.phpmyadmin.net/phpMyAdmin/5.1.2/phpMyAdmin-5.1.2-all-languages.tar.gz"
-  P_PHPMyAdmin_VN="phpMyAdmin-5.1.2-all-languages"
+  P_PHPMyAdmin_DURL="https://files.phpmyadmin.net/phpMyAdmin/5.1.3/phpMyAdmin-5.1.3-all-languages.zip"
+  P_PHPMyAdmin_VN="phpMyAdmin-5.1.3-all-languages"
   P_PHPMyAdmin_DIR="phpmyadmin"
 
 
