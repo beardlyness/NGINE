@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #===============================================================================================================================================
-# (C) Copyright 2021 NGINE a project under Hacked LLC.)
+# (C) Copyright 2022 NGINE a project under Hacked LLC.)
 #
 # Licensed under the GNU GENERAL PUBLIC LICENSE, Version 3.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@
 # description      :This script will make it super easy to setup a LEMP server with selected Addons.
 # author           :HACKED LLC.
 # contributors     :beard, ksaredfx
-# date             :02-07-2022
-# version          :0.0.14 Alpha
+# date             :07-10-2022
+# version          :0.0.15 Alpha
 # os               :Debian/Ubuntu
 # usage            :bash ngine.sh
 # notes            :If you have any problems feel free to email the maintainer: projects [AT] hacked [DOT] is
@@ -46,8 +46,8 @@
   P_REPO_LIST="/etc/apt/sources.list.d"
   P_KEYRING_DIR="/usr/share/keyrings"
   P_CUSTOM_ERROR_HANDLE_URL="https://github.com/beardlyness/NGINE-Custom-Errors/archive/master.tar.gz"
-  P_PHPMyAdmin_DURL="https://files.phpmyadmin.net/phpMyAdmin/5.1.3/phpMyAdmin-5.1.3-all-languages.zip"
-  P_PHPMyAdmin_VN="phpMyAdmin-5.1.3-all-languages"
+  P_PHPMyAdmin_DURL="https://files.phpmyadmin.net/phpMyAdmin/5.2.0/phpMyAdmin-5.2.0-all-languages.zip"
+  P_PHPMyAdmin_VN="phpMyAdmin-5.2.0-all-languages"
   P_PHPMyAdmin_DIR="phpmyadmin"
 
 
@@ -295,58 +295,8 @@ read -r -p """${cyan}""""${bold}""Do you want to setup NGINX as a Web Server? (Y
           upkeep
           nginx_default
           CertBOT
+        ;;
 
-# Error_Handling Dialog Arg main
-          read -r -p """${cyan}""""${bold}""Do you want to setup Custom Error Handling for NGINX? (Y/Yes | N/No) ""${reset}""" REPLY
-            case "${REPLY,,}" in
-              [yY]|[yY][eE][sS])
-                HEIGHT=20
-                WIDTH=120
-                CHOICE_HEIGHT=2
-                BACKTITLE="NGINE"
-                TITLE="NGINX Custom Error Handling"
-                MENU="Choose one of the following Error Handling options:"
-
-                OPTIONS=(1 "HTML (Basic Error Reporting)"
-                         2 "PHP (Advance Error Handling)")
-
-                CHOICE=$(dialog --clear \
-                                --backtitle "$BACKTITLE" \
-                                --title "$TITLE" \
-                                --menu "$MENU" \
-                                $HEIGHT $WIDTH $CHOICE_HEIGHT \
-                                "${OPTIONS[@]}" \
-                                2>&1 >/dev/tty)
-
-
-          # Attached Arg for dialogs $CHOICE output for Error_Handling
-              case $CHOICE in
-                1)
-                  echo """${yellow}""""${bold}""HTML (Basic Error Reporting)""${reset}"""
-                    custom_errors_html
-                    service nginx restart
-                    service nginx status
-                    ;;
-                2)
-                  echo """${yellow}""""${bold}""PHP (Advance Error Handling)""${reset}"""
-                    custom_errors_php
-                    service nginx restart
-                    service nginx status
-                    ;;
-              esac
-          clear
-
-          # Close Arg for Error_Handling Statement.
-                ;;
-              [nN]|[nN][oO])
-                echo """${red}""""${bold}""You have said no? We cannot work without your permission!""${reset}"""
-                ;;
-              *)
-                echo """${yellow}""""${bold}""Invalid response. You okay?""${reset}"""
-                ;;
-          esac
-
-          ;;
       2)
         echo """${yellow}""""${bold}""Grabbing Mainline build dependencies..""${reset}"""
           upkeep
@@ -355,70 +305,9 @@ read -r -p """${cyan}""""${bold}""Do you want to setup NGINX as a Web Server? (Y
           upkeep
           nginx_default
           CertBOT
-
-# Error_Handling Arg main
-          read -r -p """${cyan}""""${bold}""Do you want to setup Custom Error Handling for NGINX? (Y/Yes | N/No) ""${reset}""" REPLY
-            case "${REPLY,,}" in
-              [yY]|[yY][eE][sS])
-                HEIGHT=20
-                WIDTH=120
-                CHOICE_HEIGHT=2
-                BACKTITLE="NGINE"
-                TITLE="NGINX Custom Error Handling"
-                MENU="Choose one of the following Error Handling options:"
-
-                OPTIONS=(1 "HTML (Basic Error Reporting)"
-                         2 "PHP (Advance Error Handling)")
-
-                CHOICE=$(dialog --clear \
-                                --backtitle "$BACKTITLE" \
-                                --title "$TITLE" \
-                                --menu "$MENU" \
-                                $HEIGHT $WIDTH $CHOICE_HEIGHT \
-                                "${OPTIONS[@]}" \
-                                2>&1 >/dev/tty)
-
-
-          # Attached Arg for dialogs $CHOICE output for Error_Handling
-              case $CHOICE in
-                1)
-                  echo """${yellow}""""${bold}""HTML (Basic Error Reporting)""${reset}"""
-                    custom_errors_html
-                    service nginx restart
-                    service nginx status
-                    ;;
-                2)
-                  echo """${yellow}""""${bold}""PHP (Advance Error Handling)""${reset}"""
-                    custom_errors_php
-                    service nginx restart
-                    service nginx status
-                    ;;
-              esac
-          clear
-
-          # Close Arg for Error_Handling Statement.
-                ;;
-              [nN]|[nN][oO])
-                echo """${red}""""${bold}""You have said no? We cannot work without your permission!""${reset}"""
-                ;;
-              *)
-                echo """${yellow}""""${bold}""Invalid response. You okay?""${reset}"""
-                ;;
-          esac
-
-          ;;
-    esac
-clear
-
-# Close Arg for Main Dialog Statement.
-      ;;
-    [nN]|[nN][oO])
-      echo """${red}""""${bold}""You have said no? We cannot work without your permission!""${reset}"""
-      ;;
-    *)
-      echo """${yellow}""""${bold}""Invalid response. You okay?""${reset}"""
-      ;;
-esac
+        ;;
+      esac
+  clear
 
 # PHP Dialog Arg main
 read -r -p """${cyan}""""${bold}""Do you want to install and setup PHP? (Y/Yes | N/No) ""${reset}""" REPLY
@@ -452,6 +341,7 @@ read -r -p """${cyan}""""${bold}""Do you want to install and setup PHP? (Y/Yes |
           php_setup
           upkeep
            apt install php7.4 php7.4-fpm php7.4-cli php7.4-common php7.4-curl php7.4-mbstring php7.4-mysql php7.4-xml
+           custom_errors_php
            sed -i 's/listen.owner = www-data/listen.owner = nginx/g' /etc/php/7.4/fpm/pool.d/www.conf
            sed -i 's/listen.group = www-data/listen.group = nginx/g' /etc/php/7.4/fpm/pool.d/www.conf
            sed -i 's/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/g' /etc/php/7.4/fpm/php.ini
@@ -468,6 +358,7 @@ read -r -p """${cyan}""""${bold}""Do you want to install and setup PHP? (Y/Yes |
           php_setup
           upkeep
            apt install php8.0 php8.0-fpm php8.0-cli php8.0-common php8.0-curl php8.0-mbstring php8.0-mysql php8.0-xml
+           custom_errors_php
            sed -i 's/listen.owner = www-data/listen.owner = nginx/g' /etc/php/8.0/fpm/pool.d/www.conf
            sed -i 's/listen.group = www-data/listen.group = nginx/g' /etc/php/8.0/fpm/pool.d/www.conf
            sed -i 's/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/g' /etc/php/8.0/fpm/php.ini
@@ -484,6 +375,7 @@ read -r -p """${cyan}""""${bold}""Do you want to install and setup PHP? (Y/Yes |
           php_setup
           upkeep
            apt install php8.1 php8.1-fpm php8.1-cli php8.1-common php8.1-curl php8.1-mbstring php8.1-mysql php8.1-xml
+           custom_errors_php
            sed -i 's/listen.owner = www-data/listen.owner = nginx/g' /etc/php/8.1/fpm/pool.d/www.conf
            sed -i 's/listen.group = www-data/listen.group = nginx/g' /etc/php/8.1/fpm/pool.d/www.conf
            sed -i 's/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/g' /etc/php/8.1/fpm/php.ini
@@ -501,11 +393,14 @@ clear
       ;;
     [nN]|[nN][oO])
       echo """${red}""""${bold}""You have said no? We cannot work without your permission!""${reset}"""
+        custom_errors_html
       ;;
     *)
       echo """${yellow}""""${bold}""Invalid response. You okay?""${reset}"""
       ;;
 esac
+
+
 
 # SQL - MariaDB Dialog Arg main
     read -r -p """${cyan}""""${bold}""Would you like to install and setup MariaDB (Y/Yes | N/No) ""${reset}""" REPLY
@@ -553,3 +448,13 @@ esac
           echo """${yellow}""""${bold}""Invalid response. You okay?""${reset}"""
           ;;
     esac
+
+  # Close Arg for Main Dialog Statement.
+        ;;
+      [nN]|[nN][oO])
+        echo """${red}""""${bold}""You have said no? We cannot work without your permission!""${reset}"""
+        ;;
+      *)
+        echo """${yellow}""""${bold}""Invalid response. You okay?""${reset}"""
+        ;;
+  esac
