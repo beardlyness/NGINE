@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #===============================================================================================================================================
-# (C) Copyright 2022 NGINE a project under Hacked LLC.)
+# (C) Copyright 2023 NGINE a project under Hacked LLC.)
 #
 # Licensed under the GNU GENERAL PUBLIC LICENSE, Version 3.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@
 # description      :This script will make it super easy to setup a LEMP server with selected Addons.
 # author           :HACKED LLC.
 # contributors     :beard, ksaredfx
-# date             :07-10-2022
-# version          :0.0.15 Alpha
+# date             :02-18-2023
+# version          :0.0.16 Alpha
 # os               :Debian/Ubuntu
 # usage            :bash ngine.sh
 # notes            :If you have any problems feel free to email the maintainer: projects [AT] hacked [DOT] is
@@ -46,8 +46,8 @@
   P_REPO_LIST="/etc/apt/sources.list.d"
   P_KEYRING_DIR="/usr/share/keyrings"
   P_CUSTOM_ERROR_HANDLE_URL="https://github.com/beardlyness/NGINE-Custom-Errors/archive/master.tar.gz"
-  P_PHPMyAdmin_DURL="https://files.phpmyadmin.net/phpMyAdmin/5.2.0/phpMyAdmin-5.2.0-all-languages.zip"
-  P_PHPMyAdmin_VN="phpMyAdmin-5.2.0-all-languages"
+  P_PHPMyAdmin_DURL="https://files.phpmyadmin.net/phpMyAdmin/5.2.1/phpMyAdmin-5.2.1-all-languages.zip"
+  P_PHPMyAdmin_VN="phpMyAdmin-5.2.1-all-languages"
   P_PHPMyAdmin_DIR="phpmyadmin"
 
 
@@ -320,9 +320,9 @@ read -r -p """${cyan}""""${bold}""Do you want to install and setup PHP? (Y/Yes |
       TITLE="PHP Branch Builds"
       MENU="Choose one of the following Build options:"
 
-      OPTIONS=(1 "7.4"
-               2 "8.0"
-               3 "8.1")
+      OPTIONS=(1 "8.0"
+               2 "8.1"
+               3 "8.2")
 
       CHOICE=$(dialog --clear \
                       --backtitle "$BACKTITLE" \
@@ -336,23 +336,6 @@ read -r -p """${cyan}""""${bold}""Do you want to install and setup PHP? (Y/Yes |
 # Attached Arg for dialogs $CHOICE output
     case $CHOICE in
       1)
-        echo """${cyan}""""${bold}""Installing PHP 7.4, and its modules..""${reset}"""
-          php_verify
-          php_setup
-          upkeep
-           apt install php7.4 php7.4-fpm php7.4-cli php7.4-common php7.4-curl php7.4-mbstring php7.4-mysql php7.4-xml
-           custom_errors_php
-           sed -i 's/listen.owner = www-data/listen.owner = nginx/g' /etc/php/7.4/fpm/pool.d/www.conf
-           sed -i 's/listen.group = www-data/listen.group = nginx/g' /etc/php/7.4/fpm/pool.d/www.conf
-           sed -i 's/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/g' /etc/php/7.4/fpm/php.ini
-           sed -i 's/phpx.x-fpm.sock/php7.4-fpm.sock/g' "$P_MOD_DIR"/php
-           sed -i 's/phpx.x-fpm.sock/php7.4-fpm.sock/g' "$P_MOD_DIR"/error_handling
-           service php7.4-fpm restart
-           service php7.4-fpm status
-           service nginx restart
-           pgrep -v root | pgrep php-fpm | cut -d\  -f1 | sort | uniq
-          ;;
-      2)
         echo """${cyan}""""${bold}""Installing PHP 8.0, and its modules..""${reset}"""
           php_verify
           php_setup
@@ -369,7 +352,7 @@ read -r -p """${cyan}""""${bold}""Do you want to install and setup PHP? (Y/Yes |
            service nginx restart
            pgrep -v root | pgrep php-fpm | cut -d\  -f1 | sort | uniq
           ;;
-      3)
+      2)
         echo """${cyan}""""${bold}""Installing PHP 8.1, and its modules..""${reset}"""
           php_verify
           php_setup
@@ -383,6 +366,23 @@ read -r -p """${cyan}""""${bold}""Do you want to install and setup PHP? (Y/Yes |
            sed -i 's/phpx.x-fpm.sock/php8.1-fpm.sock/g' "$P_MOD_DIR"/error_handling
            service php8.1-fpm restart
            service php8.1-fpm status
+           service nginx restart
+           pgrep -v root | pgrep php-fpm | cut -d\  -f1 | sort | uniq
+          ;;
+      3)
+        echo """${cyan}""""${bold}""Installing PHP 8.2, and its modules..""${reset}"""
+          php_verify
+          php_setup
+          upkeep
+           apt install php8.2 php8.2-fpm php8.2-cli php8.2-common php8.2-curl php8.2-mbstring php8.2-mysql php8.2-xml
+           custom_errors_php
+           sed -i 's/listen.owner = www-data/listen.owner = nginx/g' /etc/php/8.2/fpm/pool.d/www.conf
+           sed -i 's/listen.group = www-data/listen.group = nginx/g' /etc/php/8.2/fpm/pool.d/www.conf
+           sed -i 's/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/g' /etc/php/8.2/fpm/php.ini
+           sed -i 's/phpx.x-fpm.sock/php8.2-fpm.sock/g' "$P_MOD_DIR"/php
+           sed -i 's/phpx.x-fpm.sock/php8.2-fpm.sock/g' "$P_MOD_DIR"/error_handling
+           service php8.2-fpm restart
+           service php8.2-fpm status
            service nginx restart
            pgrep -v root | pgrep php-fpm | cut -d\  -f1 | sort | uniq
           ;;
