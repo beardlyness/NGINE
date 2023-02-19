@@ -18,9 +18,9 @@ NGINX Versions: <br />
 <br />
 
 PHP Versions: <br />
-- 7.4<br />
 - 8.0<br />
 - 8.1<br />
+- 8.2<br />
 - PHP Support via <a href="https://deb.sury.org/">SURY.ORG</a>
 <br />
 
