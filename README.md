@@ -29,7 +29,7 @@ Supported SQLs: <br />
 <br />
 
 Addons: <br />
-- PHPMyAdmin via <a href="https://phpmyadmin.net">5.2.0</a><br />
+- PHPMyAdmin via <a href="https://phpmyadmin.net">5.2.1</a><br />
 - SSL Support via <a href="https://certbot.eff.org/">CertBOT</a>
 <br />
 
