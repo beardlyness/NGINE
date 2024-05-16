@@ -19,8 +19,8 @@
 # description      :This script will make it super easy to setup a LEMP server with selected Addons.
 # author           :HACKED LLC.
 # contributors     :beard, ksaredfx
-# date             :02-18-2023
-# version          :0.0.16 Alpha
+# date             :05-16-2024
+# version          :0.0.17 Alpha
 # os               :Debian/Ubuntu
 # usage            :bash ngine.sh
 # notes            :If you have any problems feel free to email the maintainer: projects [AT] hacked [DOT] is
@@ -320,9 +320,8 @@ read -r -p """${cyan}""""${bold}""Do you want to install and setup PHP? (Y/Yes |
       TITLE="PHP Branch Builds"
       MENU="Choose one of the following Build options:"
 
-      OPTIONS=(1 "8.0"
-               2 "8.1"
-               3 "8.2")
+      OPTIONS=(1 "8.2"
+               2 "8.3")
 
       CHOICE=$(dialog --clear \
                       --backtitle "$BACKTITLE" \
@@ -336,40 +335,6 @@ read -r -p """${cyan}""""${bold}""Do you want to install and setup PHP? (Y/Yes |
 # Attached Arg for dialogs $CHOICE output
     case $CHOICE in
       1)
-        echo """${cyan}""""${bold}""Installing PHP 8.0, and its modules..""${reset}"""
-          php_verify
-          php_setup
-          upkeep
-           apt install php8.0 php8.0-fpm php8.0-cli php8.0-common php8.0-curl php8.0-mbstring php8.0-mysql php8.0-xml
-           custom_errors_php
-           sed -i 's/listen.owner = www-data/listen.owner = nginx/g' /etc/php/8.0/fpm/pool.d/www.conf
-           sed -i 's/listen.group = www-data/listen.group = nginx/g' /etc/php/8.0/fpm/pool.d/www.conf
-           sed -i 's/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/g' /etc/php/8.0/fpm/php.ini
-           sed -i 's/phpx.x-fpm.sock/php8.0-fpm.sock/g' "$P_MOD_DIR"/php
-           sed -i 's/phpx.x-fpm.sock/php8.0-fpm.sock/g' "$P_MOD_DIR"/error_handling
-           service php8.0-fpm restart
-           service php8.0-fpm status
-           service nginx restart
-           pgrep -v root | pgrep php-fpm | cut -d\  -f1 | sort | uniq
-          ;;
-      2)
-        echo """${cyan}""""${bold}""Installing PHP 8.1, and its modules..""${reset}"""
-          php_verify
-          php_setup
-          upkeep
-           apt install php8.1 php8.1-fpm php8.1-cli php8.1-common php8.1-curl php8.1-mbstring php8.1-mysql php8.1-xml
-           custom_errors_php
-           sed -i 's/listen.owner = www-data/listen.owner = nginx/g' /etc/php/8.1/fpm/pool.d/www.conf
-           sed -i 's/listen.group = www-data/listen.group = nginx/g' /etc/php/8.1/fpm/pool.d/www.conf
-           sed -i 's/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/g' /etc/php/8.1/fpm/php.ini
-           sed -i 's/phpx.x-fpm.sock/php8.1-fpm.sock/g' "$P_MOD_DIR"/php
-           sed -i 's/phpx.x-fpm.sock/php8.1-fpm.sock/g' "$P_MOD_DIR"/error_handling
-           service php8.1-fpm restart
-           service php8.1-fpm status
-           service nginx restart
-           pgrep -v root | pgrep php-fpm | cut -d\  -f1 | sort | uniq
-          ;;
-      3)
         echo """${cyan}""""${bold}""Installing PHP 8.2, and its modules..""${reset}"""
           php_verify
           php_setup
@@ -383,6 +348,23 @@ read -r -p """${cyan}""""${bold}""Do you want to install and setup PHP? (Y/Yes |
            sed -i 's/phpx.x-fpm.sock/php8.2-fpm.sock/g' "$P_MOD_DIR"/error_handling
            service php8.2-fpm restart
            service php8.2-fpm status
+           service nginx restart
+           pgrep -v root | pgrep php-fpm | cut -d\  -f1 | sort | uniq
+          ;;
+      2)
+        echo """${cyan}""""${bold}""Installing PHP 8.3, and its modules..""${reset}"""
+          php_verify
+          php_setup
+          upkeep
+           apt install php8.3 php8.3-fpm php8.3-cli php8.3-common php8.3-curl php8.3-mbstring php8.3-mysql php8.3-xml
+           custom_errors_php
+           sed -i 's/listen.owner = www-data/listen.owner = nginx/g' /etc/php/8.3/fpm/pool.d/www.conf
+           sed -i 's/listen.group = www-data/listen.group = nginx/g' /etc/php/8.3/fpm/pool.d/www.conf
+           sed -i 's/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/g' /etc/php/8.3/fpm/php.ini
+           sed -i 's/phpx.x-fpm.sock/php8.3-fpm.sock/g' "$P_MOD_DIR"/php
+           sed -i 's/phpx.x-fpm.sock/php8.3-fpm.sock/g' "$P_MOD_DIR"/error_handling
+           service php8.3-fpm restart
+           service php8.3-fpm status
            service nginx restart
            pgrep -v root | pgrep php-fpm | cut -d\  -f1 | sort | uniq
           ;;
