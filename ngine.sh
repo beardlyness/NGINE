@@ -320,8 +320,8 @@ read -r -p """${cyan}""""${bold}""Do you want to install and setup PHP? (Y/Yes |
       TITLE="PHP Branch Builds"
       MENU="Choose one of the following Build options:"
 
-      OPTIONS=(1 "8.2"
-               2 "8.3")
+      OPTIONS=(1 "8.4"
+               2 "8.5")
 
       CHOICE=$(dialog --clear \
                       --backtitle "$BACKTITLE" \
@@ -335,36 +335,36 @@ read -r -p """${cyan}""""${bold}""Do you want to install and setup PHP? (Y/Yes |
 # Attached Arg for dialogs $CHOICE output
     case $CHOICE in
       1)
-        echo """${cyan}""""${bold}""Installing PHP 8.2, and its modules..""${reset}"""
+        echo """${cyan}""""${bold}""Installing PHP 8.4, and its modules..""${reset}"""
           php_verify
           php_setup
           upkeep
-           apt install php8.2 php8.2-fpm php8.2-cli php8.2-common php8.2-curl php8.2-mbstring php8.2-mysql php8.2-xml
+           apt install php8.4 php8.4-fpm php8.4-cli php8.4-common php8.4-curl php8.4-mbstring php8.4-mysql php8.4-xml
            custom_errors_php
-           sed -i 's/listen.owner = www-data/listen.owner = nginx/g' /etc/php/8.2/fpm/pool.d/www.conf
-           sed -i 's/listen.group = www-data/listen.group = nginx/g' /etc/php/8.2/fpm/pool.d/www.conf
-           sed -i 's/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/g' /etc/php/8.2/fpm/php.ini
-           sed -i 's/phpx.x-fpm.sock/php8.2-fpm.sock/g' "$P_MOD_DIR"/php
-           sed -i 's/phpx.x-fpm.sock/php8.2-fpm.sock/g' "$P_MOD_DIR"/error_handling
-           service php8.2-fpm restart
-           service php8.2-fpm status
+           sed -i 's/listen.owner = www-data/listen.owner = nginx/g' /etc/php/8.4/fpm/pool.d/www.conf
+           sed -i 's/listen.group = www-data/listen.group = nginx/g' /etc/php/8.4/fpm/pool.d/www.conf
+           sed -i 's/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/g' /etc/php/8.4/fpm/php.ini
+           sed -i 's/phpx.x-fpm.sock/php8.4-fpm.sock/g' "$P_MOD_DIR"/php
+           sed -i 's/phpx.x-fpm.sock/php8.4-fpm.sock/g' "$P_MOD_DIR"/error_handling
+           service php8.4-fpm restart
+           service php8.4-fpm status
            service nginx restart
            pgrep -v root | pgrep php-fpm | cut -d\  -f1 | sort | uniq
           ;;
       2)
-        echo """${cyan}""""${bold}""Installing PHP 8.3, and its modules..""${reset}"""
+        echo """${cyan}""""${bold}""Installing PHP 8.5, and its modules..""${reset}"""
           php_verify
           php_setup
           upkeep
-           apt install php8.3 php8.3-fpm php8.3-cli php8.3-common php8.3-curl php8.3-mbstring php8.3-mysql php8.3-xml
+           apt install php8.5 php8.5-fpm php8.5-cli php8.5-common php8.5-curl php8.5-mbstring php8.5-mysql php8.5-xml
            custom_errors_php
-           sed -i 's/listen.owner = www-data/listen.owner = nginx/g' /etc/php/8.3/fpm/pool.d/www.conf
-           sed -i 's/listen.group = www-data/listen.group = nginx/g' /etc/php/8.3/fpm/pool.d/www.conf
-           sed -i 's/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/g' /etc/php/8.3/fpm/php.ini
-           sed -i 's/phpx.x-fpm.sock/php8.3-fpm.sock/g' "$P_MOD_DIR"/php
-           sed -i 's/phpx.x-fpm.sock/php8.3-fpm.sock/g' "$P_MOD_DIR"/error_handling
-           service php8.3-fpm restart
-           service php8.3-fpm status
+           sed -i 's/listen.owner = www-data/listen.owner = nginx/g' /etc/php/8.5/fpm/pool.d/www.conf
+           sed -i 's/listen.group = www-data/listen.group = nginx/g' /etc/php/8.5/fpm/pool.d/www.conf
+           sed -i 's/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/g' /etc/php/8.5/fpm/php.ini
+           sed -i 's/phpx.x-fpm.sock/php8.5-fpm.sock/g' "$P_MOD_DIR"/php
+           sed -i 's/phpx.x-fpm.sock/php8.5-fpm.sock/g' "$P_MOD_DIR"/error_handling
+           service php8.5-fpm restart
+           service php8.5-fpm status
            service nginx restart
            pgrep -v root | pgrep php-fpm | cut -d\  -f1 | sort | uniq
           ;;
